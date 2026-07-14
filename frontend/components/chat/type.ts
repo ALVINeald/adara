@@ -5,13 +5,9 @@ export interface ChatMessage {
   timestamp: string;
 }
 
-export interface SuggestedPrompt {
-  id: string;
-  text: string;
-}
-
 export interface Conversation {
   id: string;
   title: string;
   updatedAt: string;
+  messages: ChatMessage[];
 }

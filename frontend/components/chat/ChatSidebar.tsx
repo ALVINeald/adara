@@ -1,24 +1,20 @@
 import { MessageCirclePlus, Search } from "lucide-react";
 
-const conversations = [
-  {
-    id: 1,
-    title: "Welcome to Adara",
-    time: "Today",
-  },
-  {
-    id: 2,
-    title: "Managing Anxiety",
-    time: "Yesterday",
-  },
-  {
-    id: 3,
-    title: "Sleep & Relaxation",
-    time: "2 days ago",
-  },
-];
+import type { Conversation } from "./types";
 
-export default function ChatSidebar() {
+interface ChatSidebarProps {
+  conversations: Conversation[];
+  activeConversationId: string;
+  onSelectConversation: (id: string) => void;
+  onNewConversation: () => void;
+}
+
+export default function ChatSidebar({
+  conversations,
+  activeConversationId,
+  onSelectConversation,
+  onNewConversation,
+}: ChatSidebarProps) {
   return (
     <div className="flex h-full flex-col">
 
@@ -30,7 +26,10 @@ export default function ChatSidebar() {
           Conversations
         </h2>
 
-        <button className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-600 px-4 py-3 text-white transition hover:bg-cyan-700">
+        <button
+          onClick={onNewConversation}
+          className="mt-5 flex w-full items-center justify-center gap-2 rounded-xl bg-cyan-600 px-4 py-3 font-medium text-white transition hover:bg-cyan-700"
+        >
           <MessageCirclePlus className="h-5 w-5" />
           New Conversation
         </button>
@@ -47,8 +46,8 @@ export default function ChatSidebar() {
 
           <input
             type="text"
-            placeholder="Search..."
-            className="w-full bg-transparent outline-none"
+            placeholder="Search conversations..."
+            className="w-full bg-transparent text-sm outline-none"
           />
 
         </div>
@@ -59,23 +58,25 @@ export default function ChatSidebar() {
 
       <div className="flex-1 overflow-y-auto p-4">
 
-        {conversations.map((chat) => (
-
+        {conversations.map((conversation) => (
           <button
-            key={chat.id}
-            className="mb-3 w-full rounded-2xl p-4 text-left transition hover:bg-cyan-50"
+            key={conversation.id}
+            onClick={() => onSelectConversation(conversation.id)}
+            className={`mb-3 w-full rounded-2xl p-4 text-left transition ${
+              conversation.id === activeConversationId
+                ? "bg-cyan-100 ring-1 ring-cyan-200"
+                : "hover:bg-cyan-50"
+            }`}
           >
-
-            <h3 className="font-semibold text-slate-800">
-              {chat.title}
+            <h3 className="truncate font-semibold text-slate-800">
+              {conversation.title}
             </h3>
 
             <p className="mt-1 text-sm text-slate-500">
-              {chat.time}
+              {conversation.updatedAt}
             </p>
 
           </button>
-
         ))}
 
       </div>
