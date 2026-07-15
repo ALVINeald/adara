@@ -10,13 +10,8 @@ import SuggestedPrompts from "./SuggestedPrompts";
 
 import type { ChatMessage, Conversation } from "./types";
 
-const WELCOME_MESSAGE: ChatMessage = {
-  id: crypto.randomUUID(),
-  sender: "assistant",
-  content:
-    "Hello, and welcome to Adara. 💙\n\nI'm really glad you're here today.\n\nThis is your private space where you can talk freely without judgment.\n\nHow are you feeling today?",
-  timestamp: "09:00 AM",
-};
+const WELCOME_TEXT =
+  "Hello, and welcome to Adara. I'm really glad you're here today. This is your private space where you can talk freely without judgment. \nHow are you feeling today?";
 
 const MOCK_RESPONSES = [
   "Thank you for sharing that with me. I'm here to listen.",
@@ -31,7 +26,6 @@ function createConversation(): Conversation {
     id: crypto.randomUUID(),
     title: "New Conversation",
     updatedAt: "Just now",
-    messages: [WELCOME_MESSAGE],
   };
 }
 
@@ -39,22 +33,37 @@ export default function ChatLayout() {
   const firstConversation = createConversation();
 
   const [conversations, setConversations] = useState<Conversation[]>([
-    firstConversation,
-  ]);
+  {
+    id: firstConversation.id,
+    title: firstConversation.title,
+    updatedAt: firstConversation.updatedAt,
+  },
+]);
 
-  const [activeConversationId, setActiveConversationId] = useState(
-    firstConversation.id
-  );
+const [messages, setMessages] = useState<ChatMessage[]>([
+  {
+    id: crypto.randomUUID(),
+    conversationId: firstConversation.id,
+    sender: "assistant",
+    content: WELCOME_TEXT,
+    timestamp: "09:00 AM",
+  },
+]);
 
-  const [isTyping, setIsTyping] = useState(false);
+const [activeConversationId, setActiveConversationId] = useState(
+  firstConversation.id
+);
+const [isTyping, setIsTyping] = useState(false);
 
-  const activeConversation = useMemo(
-    () =>
-      conversations.find(
-        (conversation) => conversation.id === activeConversationId
-      )!,
-    [conversations, activeConversationId]
-  );
+
+const activeMessages = useMemo(
+  () =>
+    messages.filter(
+      (message) =>
+        message.conversationId === activeConversationId
+    ),
+  [messages, activeConversationId]
+);
 
   function currentTime() {
     return new Date().toLocaleTimeString([], {
@@ -88,62 +97,83 @@ export default function ChatLayout() {
 }
 
   function sendMessage(text: string) {
-    if (!text.trim()) return;
+  if (!text.trim()) return;
 
-    const userMessage: ChatMessage = {
+  const userMessage: ChatMessage = {
+    id: crypto.randomUUID(),
+    conversationId: activeConversationId,
+    sender: "user",
+    content: text,
+    timestamp: currentTime(),
+  };
+
+  setMessages((previous) => [
+    ...previous,
+    userMessage,
+  ]);
+
+  updateConversation((conversation) => ({
+    ...conversation,
+    title:
+      conversation.title === "New Conversation"
+        ? text.length > 35
+          ? text.slice(0, 35) + "..."
+          : text
+        : conversation.title,
+    updatedAt: "Just now",
+  }));
+
+  setIsTyping(true);
+
+  setTimeout(() => {
+    const aiMessage: ChatMessage = {
       id: crypto.randomUUID(),
-      sender: "user",
-      content: text,
+      conversationId: activeConversationId,
+      sender: "assistant",
+      content:
+        MOCK_RESPONSES[
+          Math.floor(Math.random() * MOCK_RESPONSES.length)
+        ],
       timestamp: currentTime(),
     };
 
+    setMessages((previous) => [
+      ...previous,
+      aiMessage,
+    ]);
+
     updateConversation((conversation) => ({
       ...conversation,
-      title:
-  conversation.title === "New Conversation"
-    ? text.length > 35
-      ? text.slice(0, 35) + "..."
-      : text
-    : conversation.title,
       updatedAt: "Just now",
-      messages: [...conversation.messages, userMessage],
     }));
 
-    setIsTyping(true);
-
-    setTimeout(() => {
-      const aiMessage: ChatMessage = {
-        id: crypto.randomUUID(),
-        sender: "assistant",
-        content:
-          MOCK_RESPONSES[
-            Math.floor(Math.random() * MOCK_RESPONSES.length)
-          ],
-        timestamp: currentTime(),
-      };
-
-      updateConversation((conversation) => ({
-        ...conversation,
-        messages: [...conversation.messages, aiMessage],
-        updatedAt: "Just now",
-      }));
-
-      setIsTyping(false);
-    }, 1500);
-  }
+    setIsTyping(false);
+  }, 1500);
+}
 
   function startNewConversation() {
-    const conversation = createConversation();
+  const conversation = createConversation();
 
-    setConversations((previous) => [
-      conversation,
-      ...previous,
-    ]);
-  
-    setActiveConversationId(conversation.id);
+  setConversations((previous) => [
+    conversation,
+    ...previous,
+  ]);
 
-    setIsTyping(false);
-  }
+  setMessages((previous) => [
+    ...previous,
+    {
+  id: crypto.randomUUID(),
+  conversationId: conversation.id,
+  sender: "assistant",
+  content: WELCOME_TEXT,
+  timestamp: currentTime(),
+}
+  ]);
+
+  setActiveConversationId(conversation.id);
+
+  setIsTyping(false);
+}
 
   function deleteConversation(id: string) {
   if (conversations.length === 1) return;
@@ -214,9 +244,9 @@ export default function ChatLayout() {
 
           <div className="flex-1 overflow-y-auto px-8 py-6">
             <ChatWindow
-              messages={activeConversation.messages}
-              isTyping={isTyping}
-            />
+  messages={activeMessages}
+  isTyping={isTyping}
+/>
           </div>
 
           <div className="border-t border-slate-200 bg-white/60 px-8 py-6">
