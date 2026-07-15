@@ -127,11 +127,43 @@ export default function ChatLayout() {
       conversation,
       ...previous,
     ]);
-
+  
     setActiveConversationId(conversation.id);
 
     setIsTyping(false);
   }
+
+  function deleteConversation(id: string) {
+  if (conversations.length === 1) return;
+
+  const remaining = conversations.filter(
+    (conversation) => conversation.id !== id
+  );
+
+  setConversations(remaining);
+
+  if (activeConversationId === id) {
+    setActiveConversationId(remaining[0].id);
+  }
+  }
+  
+  function renameConversation(
+  id: string,
+  newTitle: string
+) {
+  if (!newTitle.trim()) return;
+
+  setConversations((previous) =>
+    previous.map((conversation) =>
+      conversation.id === id
+        ? {
+            ...conversation,
+            title: newTitle.trim(),
+          }
+        : conversation
+    )
+  );
+}
     return (
     <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
       <div className="mx-auto flex h-[90vh] max-w-7xl overflow-hidden rounded-[32px] border border-white/70 bg-white/80 shadow-[0_25px_80px_rgba(15,118,110,0.12)] backdrop-blur-xl">
@@ -140,11 +172,13 @@ export default function ChatLayout() {
 
         <aside className="hidden w-80 border-r border-slate-200 bg-white/70 lg:block">
           <ChatSidebar
-            conversations={conversations}
-            activeConversationId={activeConversationId}
-            onSelectConversation={setActiveConversationId}
-            onNewConversation={startNewConversation}
-          />
+  conversations={conversations}
+  activeConversationId={activeConversationId}
+  onSelectConversation={setActiveConversationId}
+  onNewConversation={startNewConversation}
+  onDeleteConversation={deleteConversation}
+  onRenameConversation={renameConversation}
+/>
         </aside>
 
         {/* Chat Area */}
