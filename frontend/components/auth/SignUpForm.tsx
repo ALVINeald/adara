@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { signUp } from "@/lib/auth";
 import {
   Eye,
   EyeOff,
@@ -25,18 +26,39 @@ export default function SignUpForm() {
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
+  async function handleSubmit(
+  e: React.FormEvent<HTMLFormElement>
+) {
+  e.preventDefault();
 
-    if (!name.trim() || !email.trim() || !password.trim()) {
-      alert("Please fill in all fields.");
-      return;
-    }
-
-    // Temporary until backend authentication is added
-    router.push("/onboarding");
+  if (!name.trim() || !email.trim() || !password.trim()) {
+    alert("Please fill in all fields.");
+    return;
   }
+
+  setLoading(true);
+
+  const { error } = await signUp(
+    name,
+    email,
+    password
+  );
+
+  setLoading(false);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  alert(
+    "Account created successfully! Please check your email to verify your account."
+  );
+
+  router.push("/auth/login");
+}
 
   return (
     <>
@@ -126,11 +148,12 @@ export default function SignUpForm() {
         </div>
 
         <Button
-          type="submit"
-          className="h-14 w-full rounded-xl bg-cyan-600 hover:bg-cyan-700"
-        >
-          Create Account
-        </Button>
+  type="submit"
+  disabled={loading}
+  className="h-14 w-full rounded-xl bg-cyan-600 hover:bg-cyan-700"
+>
+  {loading ? "Creating Account..." : "Create Account"}
+</Button>
 
       </form>
 
