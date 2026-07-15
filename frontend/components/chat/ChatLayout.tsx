@@ -7,8 +7,18 @@ import ChatSidebar from "./ChatSidebar";
 import ChatWindow from "./ChatWindow";
 import ChatInput from "./ChatInput";
 import SuggestedPrompts from "./SuggestedPrompts";
+import { useEffect } from "react";
+import { getCurrentUser } from "@/lib/auth";
+import {
+  getConversations,
+  createConversation,
+} from "@/lib/conversations";
+import { getMessages } from "@/lib/messages";
 
 import type { ChatMessage, Conversation } from "./types";
+import { useAuth } from "@/hooks/useAuth";
+import { useConversations } from "@/hooks/useConversations";
+import { useMessages } from "@/hooks/useMessages";
 
 const WELCOME_TEXT =
   "Hello, and welcome to Adara. I'm really glad you're here today. This is your private space where you can talk freely without judgment. \nHow are you feeling today?";
@@ -64,6 +74,51 @@ const activeMessages = useMemo(
     ),
   [messages, activeConversationId]
 );
+useEffect(() => {
+  async function loadChat() {
+    const user = await getCurrentUser();
+
+    if (!user) return;
+
+    const { data: conversationsData } =
+      await getConversations(user.id);
+
+    if (!conversationsData) return;
+
+    if (conversationsData.length === 0) {
+      const { data: newConversation } =
+        await createConversation(user.id);
+
+      if (!newConversation) return;
+
+      setConversations([
+        {
+          id: newConversation.id,
+          title: newConversation.title,
+          updatedAt: "Just now",
+        },
+      ]);
+
+      setActiveConversationId(newConversation.id);
+
+      return;
+    }
+
+    setConversations(
+      conversationsData.map((conversation) => ({
+        id: conversation.id,
+        title: conversation.title,
+        updatedAt: conversation.updated_at,
+      }))
+    );
+
+    setActiveConversationId(
+      conversationsData[0].id
+    );
+  }
+
+  loadChat();
+}, []);
 
   function currentTime() {
     return new Date().toLocaleTimeString([], {
@@ -269,3 +324,5 @@ const activeMessages = useMemo(
     </main>
   );
 }
+
+
