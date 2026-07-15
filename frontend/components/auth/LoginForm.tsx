@@ -2,6 +2,8 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { signIn } from "@/lib/auth";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -12,10 +14,45 @@ import AuthFooter from "./AuthFooter";
 
 export default function LoginForm() {
   const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
+
+const [email, setEmail] = useState("");
+const [password, setPassword] = useState("");
+const [loading, setLoading] = useState(false);
+
+async function handleSubmit(
+  e: React.FormEvent<HTMLFormElement>
+) {
+  e.preventDefault();
+
+  if (!email.trim() || !password.trim()) {
+    alert("Please fill in all fields.");
+    return;
+  }
+
+  setLoading(true);
+
+  const { error } = await signIn(
+    email,
+    password
+  );
+
+  setLoading(false);
+
+  if (error) {
+    alert(error.message);
+    return;
+  }
+
+  router.push("/chat");
+}
 
   return (
     <>
-      <form className="space-y-6">
+      <form
+  onSubmit={handleSubmit}
+  className="space-y-6"
+>
 
         {/* Email */}
 
@@ -28,16 +65,21 @@ export default function LoginForm() {
           </label>
 
           <div className="relative">
-            <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
+  <Mail className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
 
-            <Input
-              id="email"
-              type="email"
-              placeholder="you@example.com"
-              className="h-12 rounded-xl pl-12"
-            />
-          </div>
-        </div>
+  <Input
+    id="email"
+    type="email"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    placeholder="you@example.com"
+    className="h-12 rounded-xl pl-12"
+  />
+</div>
+
+</div>
+
+{/* Password */}
 
         {/* Password */}
 
@@ -66,11 +108,13 @@ export default function LoginForm() {
             <Lock className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-slate-400" />
 
             <Input
-              id="password"
-              type={showPassword ? "text" : "password"}
-              placeholder="Enter your password"
-              className="h-12 rounded-xl pl-12 pr-12"
-            />
+  id="password"
+  type={showPassword ? "text" : "password"}
+  value={password}
+  onChange={(e) => setPassword(e.target.value)}
+  placeholder="Enter your password"
+  className="h-12 rounded-xl pl-12 pr-12"
+/>
 
             <button
               type="button"
@@ -91,10 +135,12 @@ export default function LoginForm() {
         {/* Sign In */}
 
         <Button
-          className="h-12 w-full rounded-xl bg-cyan-600 text-base font-semibold text-white transition-all duration-300 hover:bg-cyan-700 hover:shadow-lg"
-        >
-          Sign In
-        </Button>
+  type="submit"
+  disabled={loading}
+  className="h-12 w-full rounded-xl bg-cyan-600 text-base font-semibold text-white transition-all duration-300 hover:bg-cyan-700 hover:shadow-lg"
+>
+  {loading ? "Signing In..." : "Sign In"}
+</Button>
 
       </form>
 
