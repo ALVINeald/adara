@@ -64,16 +64,28 @@ export default function ChatLayout() {
   }
 
   function updateConversation(
-    updater: (conversation: Conversation) => Conversation
-  ) {
-    setConversations((previous) =>
-      previous.map((conversation) =>
-        conversation.id === activeConversationId
-          ? updater(conversation)
-          : conversation
-      )
+  updater: (conversation: Conversation) => Conversation
+) {
+  setConversations((previous) => {
+    const updated = previous.map((conversation) =>
+      conversation.id === activeConversationId
+        ? updater(conversation)
+        : conversation
     );
-  }
+
+    const active = updated.find(
+      (conversation) =>
+        conversation.id === activeConversationId
+    );
+
+    const others = updated.filter(
+      (conversation) =>
+        conversation.id !== activeConversationId
+    );
+
+    return active ? [active, ...others] : updated;
+  });
+}
 
   function sendMessage(text: string) {
     if (!text.trim()) return;
@@ -153,16 +165,29 @@ export default function ChatLayout() {
 ) {
   if (!newTitle.trim()) return;
 
-  setConversations((previous) =>
-    previous.map((conversation) =>
+  setConversations((previous) => {
+    const updated = previous.map((conversation) =>
       conversation.id === id
         ? {
             ...conversation,
             title: newTitle.trim(),
+            updatedAt: "Just now",
           }
         : conversation
-    )
-  );
+    );
+
+    const renamed = updated.find(
+      (conversation) => conversation.id === id
+    );
+
+    const others = updated.filter(
+      (conversation) => conversation.id !== id
+    );
+
+    return renamed ? [renamed, ...others] : updated;
+  });
+
+  setActiveConversationId(id);
 }
     return (
     <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
