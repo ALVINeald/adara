@@ -12,13 +12,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { useConversations } from "@/hooks/useConversations";
 import { useMessages } from "@/hooks/useMessages";
 
-const MOCK_RESPONSES = [
-  "Thank you for sharing that with me. I'm here to listen.",
-  "That sounds difficult. Would you like to tell me a little more about what's been happening?",
-  "You're not alone in this. We can take things one step at a time together.",
-  "I'm glad you felt comfortable enough to share that. Your feelings are valid.",
-  "Let's slow down for a moment. Take a deep breath. What's weighing on you the most today?",
-];
+import type { AIMessage } from "@/lib/ai/types";
+
+const HISTORY_LIMIT = 20;
 
 export default function ChatLayout() {
   const { user, loading: authLoading } = useAuth();
@@ -38,6 +34,8 @@ export default function ChatLayout() {
   );
 
   const [isTyping, setIsTyping] = useState(false);
+  const [streamingReply, setStreamingReply] = useState<string | null>(null);
+  const [sendError, setSendError] = useState<{ text: string } | null>(null);
 
   useEffect(() => {
     if (conversations.length > 0 && !activeConversationId) {
@@ -48,6 +46,53 @@ export default function ChatLayout() {
   const activeConversation = conversations.find(
     (conversation) => conversation.id === activeConversationId
   );
+
+  function formatNow() {
+    return new Date().toLocaleTimeString([], {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  async function requestAIReply(latestUserText: string) {
+    setSendError(null);
+    setIsTyping(true);
+    setStreamingReply(null);
+
+    try {
+      const history: AIMessage[] = [
+        ...messages.map((message) => ({
+          role: message.sender,
+          content: message.content,
+        })),
+        { role: "user" as const, content: latestUserText },
+      ].slice(-HISTORY_LIMIT);
+
+      const response = await fetch("/api/chat", {
+  method: "POST",
+  headers: {
+    "Content-Type": "application/json",
+  },
+  body: JSON.stringify({ messages: history }),
+});
+
+if (!response.ok) {
+  throw new Error("AI request failed");
+}
+
+const data = await response.json();
+
+setIsTyping(false);
+
+await saveMessage("assistant", data.reply);
+    } catch (error) {
+      console.error("AI reply failed:", error);
+      setSendError({ text: latestUserText });
+    } finally {
+      setIsTyping(false);
+      setStreamingReply(null);
+    }
+  }
 
   async function sendMessage(text: string) {
     if (!text.trim()) return;
@@ -62,15 +107,7 @@ export default function ChatLayout() {
       );
     }
 
-    setIsTyping(true);
-
-    setTimeout(async () => {
-      const reply =
-        MOCK_RESPONSES[Math.floor(Math.random() * MOCK_RESPONSES.length)];
-
-      await saveMessage("assistant", reply);
-      setIsTyping(false);
-    }, 1500);
+    await requestAIReply(text);
   }
 
   async function startNewConversation() {
@@ -96,8 +133,6 @@ export default function ChatLayout() {
     await updateConversation(id, title);
   }
 
-  // Only block the full screen on the very first load —
-  // never again after that, so actions don't cause a full re-render.
   if (authLoading || conversationsLoading) {
     return (
       <main className="flex min-h-screen items-center justify-center bg-slate-50">
@@ -105,6 +140,19 @@ export default function ChatLayout() {
       </main>
     );
   }
+
+  const displayMessages = streamingReply
+    ? [
+        ...messages,
+        {
+          id: "streaming-reply",
+          conversationId: activeConversationId,
+          sender: "assistant" as const,
+          content: streamingReply,
+          timestamp: formatNow(),
+        },
+      ]
+    : messages;
 
   return (
     <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
@@ -125,11 +173,27 @@ export default function ChatLayout() {
           <ChatHeader />
 
           <div className="flex-1 overflow-y-auto px-8 py-6">
-            <ChatWindow messages={messages} isTyping={isTyping} />
+            <ChatWindow messages={displayMessages} isTyping={isTyping} />
           </div>
 
           <div className="border-t border-slate-200 bg-white/60 px-8 py-6">
             <SuggestedPrompts onSelect={sendMessage} />
+
+            {sendError && (
+              <div className="mt-4 flex items-center justify-between rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+                <span>Adara couldn't respond. Your message is saved.</span>
+                <button
+                  onClick={() => {
+                    const text = sendError.text;
+                    setSendError(null);
+                    requestAIReply(text);
+                  }}
+                  className="font-medium underline"
+                >
+                  Retry
+                </button>
+              </div>
+            )}
 
             <div className="mt-5">
               <ChatInput onSend={sendMessage} />
