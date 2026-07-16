@@ -20,6 +20,11 @@ export async function createConversation(userId: string) {
     .select()
     .single();
 
+  console.log("createConversation result:", {
+    data,
+    error,
+  });
+
   return { data, error };
 }
 

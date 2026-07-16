@@ -1,4 +1,6 @@
-import { useEffect, useState } from "react";
+"use client";
+
+import { useEffect, useRef, useState } from "react";
 
 import type { Conversation } from "@/components/chat/types";
 
@@ -12,6 +14,7 @@ import {
 export function useConversations(userId?: string) {
   const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(true);
+  const hasLoadedOnce = useRef(false);
 
   useEffect(() => {
     if (!userId) {
@@ -26,7 +29,11 @@ export function useConversations(userId?: string) {
   async function loadConversations() {
     if (!userId) return;
 
-    setLoading(true);
+    // Only show the full loading state on the very first fetch.
+    // Later refetches (after create/rename/delete) happen quietly.
+    if (!hasLoadedOnce.current) {
+      setLoading(true);
+    }
 
     try {
       const { data } = await getConversations(userId);
@@ -40,6 +47,7 @@ export function useConversations(userId?: string) {
       );
     } finally {
       setLoading(false);
+      hasLoadedOnce.current = true;
     }
   }
 
@@ -53,12 +61,8 @@ export function useConversations(userId?: string) {
     return data;
   }
 
-  async function updateConversation(
-    id: string,
-    title: string
-  ) {
+  async function updateConversation(id: string, title: string) {
     await renameConversation(id, title);
-
     await loadConversations();
   }
 

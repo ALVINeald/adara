@@ -9,6 +9,7 @@ import {
 } from "lucide-react";
 
 import type { Conversation } from "./types";
+import { formatConversationTimestamp } from "@/lib/format";
 
 interface ChatSidebarProps {
   conversations: Conversation[];
@@ -140,7 +141,7 @@ export default function ChatSidebar({
                     </h3>
 
                     <p className="mt-1 text-sm text-slate-500">
-                      {conversation.updatedAt}
+                      {formatConversationTimestamp(conversation.updatedAt)}
                     </p>
                   </>
                 )}
