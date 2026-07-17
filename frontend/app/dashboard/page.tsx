@@ -44,6 +44,7 @@ export default function DashboardPage() {
       title: "Journal",
       description: "Write your thoughts in a safe and private space.",
       icon: BookOpen,
+      href: "/journal",
     },
     {
       title: "Appointments",
