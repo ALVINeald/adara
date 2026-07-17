@@ -1,3 +1,6 @@
+"use client";
+
+import { useRouter } from "next/navigation";
 import {
   Bell,
   Bot,
@@ -7,12 +10,30 @@ import {
   Users,
 } from "lucide-react";
 
+import { useAuth } from "@/hooks/useAuth";
+import { useMoodEntries } from "@/hooks/useMoodEntries";
+import MoodCheckIn from "@/components/mood/MoodCheckIn";
+
+function todayDateKey(): string {
+  const date = new Date();
+  date.setMinutes(date.getMinutes() - date.getTimezoneOffset());
+  return date.toISOString().slice(0, 10);
+}
+
 export default function DashboardPage() {
+  const router = useRouter();
+  const { user } = useAuth();
+  const { entries, saveMoodEntry } = useMoodEntries(user?.id);
+
+  const today = todayDateKey();
+  const todaysEntry = entries.find((entry) => entry.entryDate === today);
+
   const cards = [
     {
       title: "AI Companion",
       description: "Talk privately with your AI companion anytime.",
       icon: Bot,
+      href: "/chat",
     },
     {
       title: "Communities",
@@ -81,6 +102,33 @@ export default function DashboardPage() {
 
         </section>
 
+        {/* Quick Mood Check-in */}
+
+        <section className="mb-10 rounded-[28px] bg-white p-8 shadow-sm">
+
+          <div className="mb-1 flex items-center justify-between">
+            <h2 className="text-xl font-semibold text-slate-900">
+              Quick Mood Check-in
+            </h2>
+
+            <button
+              onClick={() => router.push("/mood")}
+              className="text-sm font-medium text-cyan-700 hover:underline"
+            >
+              View history
+            </button>
+          </div>
+
+          <div className="mt-4">
+            <MoodCheckIn
+              initialLevel={todaysEntry?.moodLevel}
+              initialNote={todaysEntry?.note ?? undefined}
+              onSave={(level, note) => saveMoodEntry(today, level, note)}
+            />
+          </div>
+
+        </section>
+
         {/* Features */}
 
         <section className="grid gap-6 md:grid-cols-2">
@@ -91,6 +139,7 @@ export default function DashboardPage() {
             return (
               <button
                 key={card.title}
+                onClick={() => card.href && router.push(card.href)}
                 className="rounded-[28px] bg-white p-8 text-left shadow-sm transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
               >
                 <div className="mb-5 flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-100">

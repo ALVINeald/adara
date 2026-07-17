@@ -35,7 +35,10 @@ export default function ChatLayout() {
 
   const [isTyping, setIsTyping] = useState(false);
   const [streamingReply, setStreamingReply] = useState<string | null>(null);
-  const [sendError, setSendError] = useState<{ text: string } | null>(null);
+  const [sendError, setSendError] = useState<{
+    text: string;
+    timedOut?: boolean;
+  } | null>(null);
 
   useEffect(() => {
     if (conversations.length > 0 && !activeConversationId) {
@@ -59,6 +62,14 @@ export default function ChatLayout() {
     setIsTyping(true);
     setStreamingReply(null);
 
+    const controller = new AbortController();
+    let idleTimeoutId: ReturnType<typeof setTimeout>;
+
+    function resetIdleTimeout() {
+      clearTimeout(idleTimeoutId);
+      idleTimeoutId = setTimeout(() => controller.abort(), 20000);
+    }
+
     try {
       const history: AIMessage[] = [
         ...messages.map((message) => ({
@@ -68,27 +79,55 @@ export default function ChatLayout() {
         { role: "user" as const, content: latestUserText },
       ].slice(-HISTORY_LIMIT);
 
+      resetIdleTimeout();
+
       const response = await fetch("/api/chat", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({ messages: history }),
-});
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ messages: history }),
+        signal: controller.signal,
+      });
 
-if (!response.ok) {
-  throw new Error("AI request failed");
-}
+      if (!response.ok || !response.body) {
+        throw new Error("AI request failed");
+      }
 
-const data = await response.json();
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+      let accumulated = "";
+      let firstChunkReceived = false;
 
-setIsTyping(false);
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
 
-await saveMessage("assistant", data.reply);
+        resetIdleTimeout();
+
+        const chunkText = decoder.decode(value, { stream: true });
+        if (!chunkText) continue;
+
+        if (!firstChunkReceived) {
+          firstChunkReceived = true;
+          setIsTyping(false);
+        }
+
+        accumulated += chunkText;
+        setStreamingReply(accumulated);
+      }
+
+      if (!accumulated.trim()) {
+        throw new Error("Empty AI response");
+      }
+
+      await saveMessage("assistant", accumulated);
     } catch (error) {
       console.error("AI reply failed:", error);
-      setSendError({ text: latestUserText });
+      const timedOut = error instanceof Error && error.name === "AbortError";
+      setSendError({ text: latestUserText, timedOut });
     } finally {
+      clearTimeout(idleTimeoutId);
       setIsTyping(false);
       setStreamingReply(null);
     }
@@ -181,7 +220,11 @@ await saveMessage("assistant", data.reply);
 
             {sendError && (
               <div className="mt-4 flex items-center justify-between rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-                <span>Adara couldn't respond. Your message is saved.</span>
+                <span>
+                  {sendError.timedOut
+                    ? "Adara is taking too long to respond. Your message is saved."
+                    : "Adara couldn't respond. Your message is saved."}
+                </span>
                 <button
                   onClick={() => {
                     const text = sendError.text;

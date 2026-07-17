@@ -1,19 +1,19 @@
-import { GoogleGenAI } from "@google/genai";
+import Groq from "groq-sdk";
 
 import { ADARA_SYSTEM_PROMPT } from "./prompt";
 import type { AIMessage } from "./types";
 
-const apiKey = process.env.GEMINI_API_KEY;
+const apiKey = process.env.GROQ_API_KEY;
 
 if (!apiKey) {
   console.error(
-    "GEMINI_API_KEY is not set. AI responses will fail until it's added to .env.local."
+    "GROQ_API_KEY is not set. AI responses will fail until it's added to .env.local."
   );
 }
 
-const ai = new GoogleGenAI({ apiKey });
+const groq = new Groq({ apiKey });
 
-const MODEL = "gemini-3.5-flash";
+const MODEL = "llama-3.3-70b-versatile";
 
 const MAX_RETRIES = 3;
 const RETRY_DELAY_MS = 1500;
@@ -21,7 +21,7 @@ const IDLE_TIMEOUT_MS = 20000;
 
 class StreamTimeoutError extends Error {
   constructor() {
-    super("Gemini stream timed out");
+    super("Groq stream timed out");
     this.name = "StreamTimeoutError";
   }
 }
@@ -45,43 +45,48 @@ function withTimeout<T>(promise: Promise<T>, ms: number): Promise<T> {
 function isRetryableError(error: unknown): boolean {
   if (error instanceof StreamTimeoutError) return true;
   const status = (error as { status?: number })?.status;
-  return status === 503;
+  return status === 503 || status === 429;
 }
 
 function delay(ms: number) {
   return new Promise((resolve) => setTimeout(resolve, ms));
 }
 
-export async function* streamGeminiResponse(
+export async function* streamGroqResponse(
   messages: AIMessage[]
 ): AsyncGenerator<string> {
-  const contents = messages.map((message) => ({
-    role: message.role === "assistant" ? "model" : "user",
-    parts: [{ text: message.content }],
-  }));
+  const chatMessages = [
+    { role: "system" as const, content: ADARA_SYSTEM_PROMPT },
+    ...messages.map((message) => ({
+      role: message.role,
+      content: message.content,
+    })),
+  ];
 
   for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
     try {
       const stream = await withTimeout(
-        ai.models.generateContentStream({
+        groq.chat.completions.create({
           model: MODEL,
-          contents,
-          config: {
-            systemInstruction: ADARA_SYSTEM_PROMPT,
-          },
+          messages: chatMessages,
+          stream: true,
         }),
         IDLE_TIMEOUT_MS
       );
 
+      const iterator = stream[Symbol.asyncIterator]();
+
       while (true) {
         const { value: chunk, done } = await withTimeout(
-          stream.next(),
+          iterator.next(),
           IDLE_TIMEOUT_MS
         );
 
         if (done) break;
-        if (chunk.text) {
-          yield chunk.text;
+
+        const text = chunk.choices[0]?.delta?.content;
+        if (text) {
+          yield text;
         }
       }
 
@@ -94,7 +99,7 @@ export async function* streamGeminiResponse(
       }
 
       console.warn(
-        `Gemini request failed (attempt ${attempt + 1}/${MAX_RETRIES}), retrying...`
+        `Groq request failed (attempt ${attempt + 1}/${MAX_RETRIES}), retrying...`
       );
       await delay(RETRY_DELAY_MS * (attempt + 1));
     }

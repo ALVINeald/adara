@@ -1,11 +1,12 @@
 import { streamGeminiResponse } from "./gemini";
+import { streamGroqResponse } from "./groq";
 import type { AIMessage } from "./types";
 
 export type { AIMessage } from "./types";
 
-type AIProvider = "gemini";
+type AIProvider = "gemini" | "groq";
 
-const CURRENT_PROVIDER: AIProvider = "gemini";
+const CURRENT_PROVIDER: AIProvider = "groq";
 
 export function streamAIResponse(
   messages: AIMessage[]
@@ -13,6 +14,8 @@ export function streamAIResponse(
   switch (CURRENT_PROVIDER) {
     case "gemini":
       return streamGeminiResponse(messages);
+    case "groq":
+      return streamGroqResponse(messages);
     default:
       throw new Error(`Unsupported AI provider: ${CURRENT_PROVIDER}`);
   }
