@@ -2,7 +2,6 @@
 
 import { useRouter } from "next/navigation";
 import {
-  Bell,
   Bot,
   BookOpen,
   Calendar,
@@ -13,6 +12,7 @@ import {
 import { useAuth } from "@/hooks/useAuth";
 import { useMoodEntries } from "@/hooks/useMoodEntries";
 import MoodCheckIn from "@/components/mood/MoodCheckIn";
+import NotificationBell from "@/components/notifications/NotificationBell";
 
 function todayDateKey(): string {
   const date = new Date();
@@ -39,6 +39,7 @@ export default function DashboardPage() {
       title: "Communities",
       description: "Connect with people who understand your journey.",
       icon: Users,
+      href: "/communities",
     },
     {
       title: "Journal",
@@ -72,9 +73,7 @@ export default function DashboardPage() {
             </h1>
           </div>
 
-          <button className="rounded-full bg-white p-3 shadow-md transition hover:shadow-lg">
-            <Bell className="h-5 w-5 text-slate-700" />
-          </button>
+          <NotificationBell />
 
         </header>
 

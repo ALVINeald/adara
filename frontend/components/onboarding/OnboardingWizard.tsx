@@ -22,7 +22,7 @@ export default function OnboardingWizard() {
   const [data, setData] = useState<OnboardingData>({
     name: "",
     feeling: "",
-    community: "",
+    communityJoined: false,
   });
 
   function updateData(values: Partial<OnboardingData>) {
@@ -125,7 +125,7 @@ export default function OnboardingWizard() {
               disabled={
                 (step === 2 && data.name.trim() === "") ||
                 (step === 3 && data.feeling === "") ||
-                (step === 4 && data.community === "")
+                (step === 4 && !data.communityJoined)
               }
               className="rounded-xl bg-cyan-600 px-8 py-3 font-semibold text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
             >
