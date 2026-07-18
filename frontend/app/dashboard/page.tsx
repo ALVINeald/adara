@@ -50,6 +50,7 @@ export default function DashboardPage() {
       title: "Appointments",
       description: "Book sessions with mental health professionals.",
       icon: Calendar,
+      href: "/therapists",
     },
   ];
 
