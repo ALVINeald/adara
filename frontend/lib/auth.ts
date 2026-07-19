@@ -12,6 +12,7 @@ export async function signUp(
       data: {
         full_name: name,
       },
+      emailRedirectTo: `${window.location.origin}/auth/login`,
     },
   });
 }

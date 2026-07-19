@@ -15,9 +15,11 @@ const groq = new Groq({ apiKey });
 
 const MODEL = "llama-3.3-70b-versatile";
 
-const MAX_RETRIES = 3;
-const RETRY_DELAY_MS = 1500;
-const IDLE_TIMEOUT_MS = 20000;
+const MAX_RETRIES = 2;
+const RETRY_DELAY_MS = 500;
+const IDLE_TIMEOUT_MS = 3500;
+// Worst case (both attempts time out with zero response): 3.5s + 0.5s + 3.5s = 7.5s,
+// leaving a real margin under Vercel's 10s free-tier function limit.
 
 class StreamTimeoutError extends Error {
   constructor() {
