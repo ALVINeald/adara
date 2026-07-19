@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { signIn } from "@/lib/auth";
+import { supabase } from "@/lib/supabase";
 import { Eye, EyeOff, Mail, Lock } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -32,7 +33,7 @@ async function handleSubmit(
 
   setLoading(true);
 
-  const { error } = await signIn(
+  const { data, error } = await signIn(
     email,
     password
   );
@@ -44,7 +45,24 @@ async function handleSubmit(
     return;
   }
 
-  router.push("/chat");
+  const userId = data.user?.id;
+
+  // Use "has joined at least one community" as a proxy for "has
+  // completed onboarding" -- avoids needing a separate flag/column,
+  // since community selection is already the final onboarding step.
+  if (userId) {
+    const { count } = await supabase
+      .from("community_memberships")
+      .select("*", { count: "exact", head: true })
+      .eq("user_id", userId);
+
+    if (!count || count === 0) {
+      router.push("/onboarding");
+      return;
+    }
+  }
+
+  router.push("/dashboard");
 }
 
   return (

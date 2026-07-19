@@ -73,7 +73,7 @@ export default function WelcomePage() {
             </div>
 
             <div className="flex flex-wrap gap-4">
-              <Link href="/auth/login">
+              <Link href="/auth/signup">
                 <Button size="lg" className="gap-2 rounded-xl px-8">
                   Get Started
                   <ArrowRight className="h-4 w-4" />
