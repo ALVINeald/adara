@@ -63,7 +63,8 @@ export default function ChatLayout() {
     setStreamingReply(null);
 
     const controller = new AbortController();
-    let idleTimeoutId: ReturnType<typeof setTimeout>;
+    let idleTimeoutId: ReturnType<typeof setTimeout> = setTimeout(() => {}, 0);
+    clearTimeout(idleTimeoutId);
 
     function resetIdleTimeout() {
       clearTimeout(idleTimeoutId);
