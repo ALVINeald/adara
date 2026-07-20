@@ -77,7 +77,17 @@ export function useCommunities(userId?: string) {
       return { error: `You can only join up to ${MAX_COMMUNITIES} communities.` };
     }
 
-    await joinCommunity(userId, communityId);
+    const { error } = await joinCommunity(userId, communityId);
+
+    if (error) {
+      if (error.code === "23505") {
+        // Unique constraint violation -- already a member of this one.
+        await load();
+        return {};
+      }
+      return { error: "Couldn't join this community. Please try again." };
+    }
+
     await load();
     return {};
   }

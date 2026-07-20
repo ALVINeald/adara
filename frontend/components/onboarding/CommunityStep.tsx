@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Users, Check } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -12,6 +12,8 @@ export default function CommunityStep({ data, updateData }: StepProps) {
   const { communities, memberships, loading, join, leave, maxCommunities } =
     useCommunities(user?.id);
 
+  const [actionError, setActionError] = useState<string | null>(null);
+
   const memberCommunityIds = new Set(memberships.map((m) => m.communityId));
 
   useEffect(() => {
@@ -20,10 +22,16 @@ export default function CommunityStep({ data, updateData }: StepProps) {
   }, [memberships.length]);
 
   async function handleToggle(communityId: string) {
+    setActionError(null);
+
     if (memberCommunityIds.has(communityId)) {
       await leave(communityId);
-    } else {
-      await join(communityId);
+      return;
+    }
+
+    const result = await join(communityId);
+    if (result.error) {
+      setActionError(result.error);
     }
   }
 
@@ -54,6 +62,12 @@ export default function CommunityStep({ data, updateData }: StepProps) {
         <p className="mt-2 text-sm font-medium text-cyan-700">
           {memberships.length}/{maxCommunities} selected
         </p>
+
+        {actionError && (
+          <p className="mt-2 text-sm font-medium text-red-600">
+            {actionError}
+          </p>
+        )}
       </div>
 
       <div className="grid gap-4">
