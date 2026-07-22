@@ -1,11 +1,13 @@
 "use client";
 
+import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import {
   Bot,
   BookOpen,
   Calendar,
   Heart,
+  Sparkles,
   Users,
 } from "lucide-react";
 
@@ -22,7 +24,13 @@ function todayDateKey(): string {
 
 export default function DashboardPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/auth/login");
+    }
+  }, [authLoading, user, router]);
   const { entries, saveMoodEntry } = useMoodEntries(user?.id);
 
   const today = todayDateKey();
@@ -46,6 +54,12 @@ export default function DashboardPage() {
       description: "Write your thoughts in a safe and private space.",
       icon: BookOpen,
       href: "/journal",
+    },
+    {
+      title: "Wellness Hub",
+      description: "Breathing exercises, meditation, playlists, and resources.",
+      icon: Sparkles,
+      href: "/wellness",
     },
     {
       title: "Appointments",
