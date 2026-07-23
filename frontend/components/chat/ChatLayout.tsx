@@ -217,7 +217,9 @@ export default function ChatLayout() {
           </div>
 
           <div className="border-t border-slate-200 bg-white/60 px-8 py-6">
-            <SuggestedPrompts onSelect={sendMessage} />
+            {messages.length === 0 && (
+              <SuggestedPrompts onSelect={sendMessage} />
+            )}
 
             {sendError && (
               <div className="mt-4 flex items-center justify-between rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
