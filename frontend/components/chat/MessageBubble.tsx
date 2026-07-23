@@ -1,6 +1,6 @@
 import { Sparkles } from "lucide-react";
 
-import type { ChatMessage } from "./type";
+import type { ChatMessage } from "./types";
 
 interface MessageBubbleProps {
   message: ChatMessage;
