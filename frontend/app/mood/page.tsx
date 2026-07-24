@@ -12,6 +12,7 @@ import MoodHomeCheckIn from "@/components/mood/MoodHomeCheckIn";
 import MoodHeatmap from "@/components/mood/MoodHeatmap";
 import { calculateStreak } from "@/components/mood/streak";
 import { getTimeOfDayGreeting } from "@/components/mood/greeting";
+import AppShell from "@/components/navigation/AppShell";
 
 function todayDateKey(): string {
   const date = new Date();
@@ -59,6 +60,7 @@ export default function MoodPage() {
   const streak = calculateStreak(entries);
 
   return (
+    <AppShell>
     <main className="min-h-screen bg-[linear-gradient(160deg,#f0fbff_0%,#e8fbf5_100%)] p-6">
       <div className="mx-auto max-w-2xl">
 
@@ -88,5 +90,6 @@ export default function MoodPage() {
 
       </div>
     </main>
+    </AppShell>
   );
 }
