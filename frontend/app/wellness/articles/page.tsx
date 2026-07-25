@@ -7,6 +7,7 @@ import { ArrowLeft } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { ARTICLES } from "@/components/wellness/articles";
 import type { Article } from "@/components/wellness/articles";
+import AppShell from "@/components/navigation/AppShell";
 
 export default function ArticlesPage() {
   const router = useRouter();
@@ -22,6 +23,7 @@ export default function ArticlesPage() {
 
   if (selected) {
     return (
+      <AppShell>
       <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
         <div className="mx-auto max-w-2xl">
           <button
@@ -48,10 +50,12 @@ export default function ArticlesPage() {
           </div>
         </div>
       </main>
+      </AppShell>
     );
   }
 
   return (
+    <AppShell>
     <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
       <div className="mx-auto max-w-2xl">
         <h1 className="mb-2 text-2xl font-bold text-slate-900">Resources</h1>
@@ -78,5 +82,6 @@ export default function ArticlesPage() {
         </div>
       </div>
     </main>
+    </AppShell>
   );
 }

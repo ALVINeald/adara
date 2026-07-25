@@ -1,15 +1,23 @@
 "use client";
 
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { Headphones, BookOpenText, Wind, Sparkles } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useWellnessSessions } from "@/hooks/useWellnessSessions";
+import AppShell from "@/components/navigation/AppShell";
 
 export default function WellnessHubPage() {
   const router = useRouter();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/auth/login");
+    }
+  }, [authLoading, user, router]);
+
   const { sessions } = useWellnessSessions(user?.id);
 
   const sessionsThisWeek = useMemo(() => {
@@ -48,6 +56,7 @@ export default function WellnessHubPage() {
   ];
 
   return (
+    <AppShell>
     <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
       <div className="mx-auto max-w-5xl">
         <div className="mb-8">
@@ -85,5 +94,6 @@ export default function WellnessHubPage() {
         </div>
       </div>
     </main>
+    </AppShell>
   );
 }

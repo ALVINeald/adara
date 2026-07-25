@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -8,9 +9,18 @@ import { useWellnessSessions } from "@/hooks/useWellnessSessions";
 import BreathingExercise from "@/components/wellness/BreathingExercise";
 import { BREATHING_PATTERNS } from "@/components/wellness/breathingPatterns";
 import type { BreathingPattern } from "@/components/wellness/BreathingExercise";
+import AppShell from "@/components/navigation/AppShell";
 
 export default function BreathingPage() {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/auth/login");
+    }
+  }, [authLoading, user, router]);
+
   const { recordSession } = useWellnessSessions(user?.id);
 
   const [selected, setSelected] = useState<BreathingPattern | null>(null);
@@ -24,6 +34,7 @@ export default function BreathingPage() {
 
   if (selected) {
     return (
+      <AppShell>
       <main className="flex min-h-screen flex-col items-center justify-center bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
         <button
           type="button"
@@ -69,10 +80,12 @@ export default function BreathingPage() {
           </>
         )}
       </main>
+      </AppShell>
     );
   }
 
   return (
+    <AppShell>
     <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
       <div className="mx-auto max-w-2xl">
         <h1 className="mb-6 text-2xl font-bold text-slate-900">
@@ -97,5 +110,6 @@ export default function BreathingPage() {
         </div>
       </div>
     </main>
+    </AppShell>
   );
 }

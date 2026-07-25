@@ -1,16 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { ArrowLeft, CheckCircle2 } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useWellnessSessions } from "@/hooks/useWellnessSessions";
 import MeditationTimer from "@/components/wellness/MeditationTimer";
+import AppShell from "@/components/navigation/AppShell";
 
 const DURATIONS = [5, 10, 15, 20];
 
 export default function MeditationPage() {
-  const { user } = useAuth();
+  const router = useRouter();
+  const { user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/auth/login");
+    }
+  }, [authLoading, user, router]);
+
   const { recordSession } = useWellnessSessions(user?.id);
 
   const [selectedDuration, setSelectedDuration] = useState<number | null>(
@@ -30,6 +40,7 @@ export default function MeditationPage() {
 
   if (selectedDuration) {
     return (
+      <AppShell>
       <main className="flex min-h-screen flex-col items-center justify-center bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
         <button
           type="button"
@@ -67,10 +78,12 @@ export default function MeditationPage() {
           />
         )}
       </main>
+      </AppShell>
     );
   }
 
   return (
+    <AppShell>
     <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
       <div className="mx-auto max-w-2xl">
         <h1 className="mb-2 text-2xl font-bold text-slate-900">
@@ -94,5 +107,6 @@ export default function MeditationPage() {
         </div>
       </div>
     </main>
+    </AppShell>
   );
 }
