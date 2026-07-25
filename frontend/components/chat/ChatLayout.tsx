@@ -208,7 +208,7 @@ export default function ChatLayout() {
         )}
 
         <aside
-          className={`absolute inset-y-0 left-0 z-20 w-80 border-r border-slate-200 bg-white transition-transform duration-300 ${
+          className={`absolute inset-y-0 left-0 z-30 w-80 border-r border-slate-200 bg-white transition-transform duration-300 ${
             isSidebarOpen ? "translate-x-0" : "-translate-x-full"
           }`}
         >
