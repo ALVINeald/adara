@@ -1,12 +1,24 @@
-import { ShieldCheck, Sparkles } from "lucide-react";
+import { PanelLeft, ShieldCheck, Sparkles } from "lucide-react";
 
-export default function ChatHeader() {
+interface ChatHeaderProps {
+  onToggleSidebar: () => void;
+}
+
+export default function ChatHeader({ onToggleSidebar }: ChatHeaderProps) {
   return (
     <header className="border-b border-slate-200 bg-white/70 px-8 py-6 backdrop-blur">
 
       <div className="flex items-center justify-between">
 
         <div className="flex items-center gap-4">
+
+          <button
+            onClick={onToggleSidebar}
+            title="Conversations"
+            className="rounded-xl p-2 text-slate-500 transition hover:bg-slate-100"
+          >
+            <PanelLeft className="h-5 w-5" />
+          </button>
 
           <div className="flex h-14 w-14 items-center justify-center rounded-full bg-cyan-100">
 

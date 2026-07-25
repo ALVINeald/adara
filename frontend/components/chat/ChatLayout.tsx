@@ -28,6 +28,7 @@ export default function ChatLayout() {
   } = useConversations(user?.id);
 
   const [activeConversationId, setActiveConversationId] = useState("");
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
   const { messages, sendMessage: saveMessage } = useMessages(
     activeConversationId
@@ -154,6 +155,7 @@ export default function ChatLayout() {
     const conversation = await addConversation();
     if (!conversation) return;
     setActiveConversationId(conversation.id);
+    setIsSidebarOpen(false);
   }
 
   async function deleteConversation(id: string) {
@@ -196,21 +198,37 @@ export default function ChatLayout() {
 
   return (
     <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
-      <div className="mx-auto flex h-[90vh] max-w-7xl overflow-hidden rounded-[32px] border border-white/70 bg-white/80 shadow-[0_25px_80px_rgba(15,118,110,0.12)] backdrop-blur-xl">
+      <div className="relative mx-auto flex h-[90vh] max-w-7xl overflow-hidden rounded-[32px] border border-white/70 bg-white/80 shadow-[0_25px_80px_rgba(15,118,110,0.12)] backdrop-blur-xl">
 
-        <aside className="hidden w-80 border-r border-slate-200 bg-white/70 lg:block">
+        {isSidebarOpen && (
+          <div
+            className="absolute inset-0 z-10 bg-black/20"
+            onClick={() => setIsSidebarOpen(false)}
+          />
+        )}
+
+        <aside
+          className={`absolute inset-y-0 left-0 z-20 w-80 border-r border-slate-200 bg-white transition-transform duration-300 ${
+            isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+          }`}
+        >
           <ChatSidebar
             conversations={conversations}
             activeConversationId={activeConversationId}
-            onSelectConversation={setActiveConversationId}
+            onSelectConversation={(id) => {
+              setActiveConversationId(id);
+              setIsSidebarOpen(false);
+            }}
             onNewConversation={startNewConversation}
             onDeleteConversation={deleteConversation}
             onRenameConversation={renameConversation}
           />
         </aside>
 
-        <section className="flex flex-1 flex-col">
-          <ChatHeader />
+        <section className="relative z-20 flex flex-1 flex-col">
+          <ChatHeader
+            onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+          />
 
           <div className="flex-1 overflow-y-auto px-8 py-6">
             <ChatWindow messages={displayMessages} isTyping={isTyping} />
