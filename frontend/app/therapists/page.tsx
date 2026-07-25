@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useTherapists } from "@/hooks/useTherapists";
@@ -8,9 +9,18 @@ import { useAppointmentRequests } from "@/hooks/useAppointmentRequests";
 import TherapistCard from "@/components/therapists/TherapistCard";
 import CrisisSupportBanner from "@/components/therapists/CrisisSupportBanner";
 import HelpOrganizationsList from "@/components/therapists/HelpOrganizationsList";
+import AppShell from "@/components/navigation/AppShell";
 
 export default function TherapistsPage() {
+  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/auth/login");
+    }
+  }, [authLoading, user, router]);
+
   const { therapists, loading: therapistsLoading } = useTherapists();
   const { requests, requestAppointment } = useAppointmentRequests(user?.id);
 
@@ -38,6 +48,7 @@ export default function TherapistsPage() {
   );
 
   return (
+    <AppShell>
     <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
       <div className="mx-auto max-w-3xl">
         <h1 className="mb-2 text-2xl font-bold text-slate-900">
@@ -98,5 +109,6 @@ export default function TherapistsPage() {
         <HelpOrganizationsList />
       </div>
     </main>
+    </AppShell>
   );
 }

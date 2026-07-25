@@ -1,14 +1,24 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useCommunities } from "@/hooks/useCommunities";
 import CommunityCard from "@/components/community/CommunityCard";
+import AppShell from "@/components/navigation/AppShell";
 
 export default function CommunitiesPage() {
+  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/auth/login");
+    }
+  }, [authLoading, user, router]);
+
   const { communities, memberships, loading, join, leave, maxCommunities } =
     useCommunities(user?.id);
 
@@ -42,6 +52,7 @@ export default function CommunitiesPage() {
   }
 
   return (
+    <AppShell>
     <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
       <div className="mx-auto max-w-4xl">
         <h1 className="mb-2 text-2xl font-bold text-slate-900">
@@ -84,5 +95,6 @@ export default function CommunitiesPage() {
         </div>
       </div>
     </main>
+    </AppShell>
   );
 }

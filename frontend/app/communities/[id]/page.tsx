@@ -2,13 +2,14 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
-import { ArrowLeft, SendHorizontal } from "lucide-react";
+import { ArrowLeft, SendHorizontal, Users } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useCommunities } from "@/hooks/useCommunities";
 import { useCommunityMessages } from "@/hooks/useCommunityMessages";
 import { getCommunityMemberNames } from "@/lib/communityMembers";
 import CommunityChatMessage from "@/components/community/CommunityChatMessage";
+import AppShell from "@/components/navigation/AppShell";
 
 export default function CommunityChatPage() {
   const params = useParams();
@@ -16,6 +17,12 @@ export default function CommunityChatPage() {
   const communityId = params.id as string;
 
   const { user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/auth/login");
+    }
+  }, [authLoading, user, router]);
   const { communities, loading: communitiesLoading } = useCommunities(
     user?.id
   );
@@ -23,6 +30,7 @@ export default function CommunityChatPage() {
     useCommunityMessages(communityId);
 
   const [memberNames, setMemberNames] = useState<Record<string, string>>({});
+  const [showMembers, setShowMembers] = useState(false);
   const [input, setInput] = useState("");
   const bottomRef = useRef<HTMLDivElement>(null);
 
@@ -61,23 +69,59 @@ export default function CommunityChatPage() {
   }
 
   return (
+    <AppShell>
     <main className="flex min-h-screen flex-col bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)]">
-      <header className="flex items-center gap-4 border-b border-slate-200 bg-white/70 px-6 py-4 backdrop-blur-xl">
-        <button
-          onClick={() => router.push("/communities")}
-          className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
-        >
-          <ArrowLeft className="h-5 w-5" />
-        </button>
-        <div>
-          <h1 className="font-semibold text-slate-900">
-            {community?.name ?? "Community"}
-          </h1>
-          <p className="text-xs text-slate-500">
-            {community?.category}
-          </p>
+      <header className="flex items-center justify-between gap-4 border-b border-slate-200 bg-white/70 px-6 py-4 backdrop-blur-xl">
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => router.push("/communities")}
+            className="rounded-lg p-2 text-slate-500 hover:bg-slate-100"
+          >
+            <ArrowLeft className="h-5 w-5" />
+          </button>
+          <div>
+            <h1 className="font-semibold text-slate-900">
+              {community?.name ?? "Community"}
+            </h1>
+            <p className="text-xs text-slate-500">
+              {community?.category}
+            </p>
+          </div>
         </div>
+
+        <button
+          onClick={() => setShowMembers((prev) => !prev)}
+          className={`flex items-center gap-2 rounded-xl px-4 py-2 text-sm font-medium transition ${
+            showMembers
+              ? "bg-cyan-100 text-cyan-700"
+              : "bg-slate-100 text-slate-600 hover:bg-slate-200"
+          }`}
+        >
+          <Users className="h-4 w-4" />
+          {Object.keys(memberNames).length}
+        </button>
       </header>
+
+      {showMembers && (
+        <div className="border-b border-slate-200 bg-white/70 px-6 py-4 backdrop-blur-xl">
+          <p className="mb-2 text-xs font-medium uppercase tracking-wide text-slate-400">
+            Members ({Object.keys(memberNames).length})
+          </p>
+          <div className="flex flex-wrap gap-2">
+            {Object.entries(memberNames).map(([userId, name]) => (
+              <span
+                key={userId}
+                className="rounded-full bg-slate-100 px-3 py-1 text-sm text-slate-700"
+              >
+                {name}
+                {userId === user?.id && (
+                  <span className="text-slate-400"> (You)</span>
+                )}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
 
       <div className="flex-1 space-y-3 overflow-y-auto px-6 py-6">
         {messages.length === 0 ? (
@@ -127,5 +171,6 @@ export default function CommunityChatPage() {
         </div>
       </div>
     </main>
+    </AppShell>
   );
 }
