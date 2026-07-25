@@ -1,6 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { Plus, Search } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
@@ -10,6 +11,7 @@ import type { JournalEntry } from "@/hooks/useJournalEntries";
 import JournalEditor from "@/components/journal/JournalEditor";
 import JournalEntryCard from "@/components/journal/JournalEntryCard";
 import { MOOD_SCALE } from "@/components/mood/moodScale";
+import AppShell from "@/components/navigation/AppShell";
 
 type ViewState =
   | { mode: "list" }
@@ -17,7 +19,15 @@ type ViewState =
   | { mode: "edit"; entry: JournalEntry };
 
 export default function JournalPage() {
+  const router = useRouter();
   const { user, loading: authLoading } = useAuth();
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      router.replace("/auth/login");
+    }
+  }, [authLoading, user, router]);
+
   const {
     entries,
     loading: entriesLoading,
@@ -59,6 +69,7 @@ export default function JournalPage() {
   }
 
   return (
+    <AppShell>
     <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
       <div className="mx-auto max-w-4xl">
 
@@ -172,5 +183,6 @@ export default function JournalPage() {
 
       </div>
     </main>
+    </AppShell>
   );
 }
