@@ -1,16 +1,19 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useRouter, usePathname } from "next/navigation";
 import {
   Plus,
   Pencil,
   Search,
   Trash2,
   MoreHorizontal,
+  X,
 } from "lucide-react";
 
 import type { Conversation } from "./types";
 import { formatConversationTimestamp } from "@/lib/format";
+import { NAV_ITEMS } from "@/components/navigation/navItems";
 
 interface ChatSidebarProps {
   conversations: Conversation[];
@@ -22,7 +25,20 @@ interface ChatSidebarProps {
     id: string,
     title: string
   ) => void;
+  onClose: () => void;
+  userName: string;
 }
+
+// Order requested specifically for this combined panel -- separate
+// from the global nav shell's own order, which stays unchanged.
+const PANEL_NAV_ORDER = [
+  "companion",
+  "community",
+  "journal",
+  "wellness",
+  "mood",
+  "therapists",
+];
 
 export default function ChatSidebar({
   conversations,
@@ -31,7 +47,12 @@ export default function ChatSidebar({
   onNewConversation,
   onDeleteConversation,
   onRenameConversation,
+  onClose,
+  userName,
 }: ChatSidebarProps) {
+  const router = useRouter();
+  const pathname = usePathname();
+
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] =
     useState<string | null>(null);
@@ -49,6 +70,12 @@ export default function ChatSidebar({
         .includes(search.toLowerCase())
     );
   }, [search, conversations]);
+
+  const orderedNavItems = useMemo(() => {
+    return PANEL_NAV_ORDER.map((key) =>
+      NAV_ITEMS.find((item) => item.key === key)
+    ).filter((item): item is (typeof NAV_ITEMS)[number] => !!item);
+  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -82,6 +109,10 @@ export default function ChatSidebar({
     setOpenMenuId(null);
   }
 
+  function isActive(href: string) {
+    return pathname === href || pathname.startsWith(href + "/");
+  }
+
   return (
     <div className="flex h-full flex-col">
 
@@ -94,13 +125,23 @@ export default function ChatSidebar({
             Conversations
           </h2>
 
-          <button
-            onClick={onNewConversation}
-            title="New conversation"
-            className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-600 text-white transition hover:bg-cyan-700"
-          >
-            <Plus className="h-5 w-5" />
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={onNewConversation}
+              title="New conversation"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-600 text-white transition hover:bg-cyan-700"
+            >
+              <Plus className="h-5 w-5" />
+            </button>
+
+            <button
+              onClick={onClose}
+              title="Close"
+              className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100"
+            >
+              <X className="h-5 w-5" />
+            </button>
+          </div>
         </div>
 
       </div>
@@ -233,6 +274,39 @@ export default function ChatSidebar({
 
       </div>
 
+      {/* App navigation -- combined into this same panel */}
+
+      <div className="border-t border-slate-200 p-4">
+        <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
+          Explore
+        </p>
+
+        <div className="flex flex-col gap-1">
+          {orderedNavItems.map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.href);
+
+            return (
+              <button
+                key={item.key}
+                onClick={() => {
+                  onClose();
+                  router.push(item.href);
+                }}
+                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition ${
+                  active
+                    ? "bg-cyan-50 text-cyan-700"
+                    : "text-slate-600 hover:bg-slate-50"
+                }`}
+              >
+                <Icon className="h-4 w-4" />
+                <span className="text-sm font-medium">{item.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
       {/* Footer */}
 
       <div className="border-t border-slate-200 p-5">
@@ -240,13 +314,13 @@ export default function ChatSidebar({
         <div className="flex items-center gap-3">
 
           <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-600 font-semibold text-white">
-            A
+            {userName ? userName.charAt(0).toUpperCase() : "?"}
           </div>
 
           <div>
 
             <p className="font-semibold text-slate-900">
-              Alvin
+              {userName || "..."}
             </p>
 
             <p className="text-sm text-slate-500">

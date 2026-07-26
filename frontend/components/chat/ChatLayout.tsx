@@ -11,6 +11,7 @@ import SuggestedPrompts from "./SuggestedPrompts";
 import { useAuth } from "@/hooks/useAuth";
 import { useConversations } from "@/hooks/useConversations";
 import { useMessages } from "@/hooks/useMessages";
+import { getProfileNamesByIds } from "@/lib/profiles";
 
 import type { AIMessage } from "@/lib/ai/types";
 
@@ -29,6 +30,18 @@ export default function ChatLayout() {
 
   const [activeConversationId, setActiveConversationId] = useState("");
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [userName, setUserName] = useState("");
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    getProfileNamesByIds([user.id]).then(({ data }) => {
+      const fullName = data?.[0]?.full_name;
+      if (fullName) {
+        setUserName(fullName);
+      }
+    });
+  }, [user?.id]);
 
   const { messages, sendMessage: saveMessage } = useMessages(
     activeConversationId
@@ -222,6 +235,8 @@ export default function ChatLayout() {
             onNewConversation={startNewConversation}
             onDeleteConversation={deleteConversation}
             onRenameConversation={renameConversation}
+            onClose={() => setIsSidebarOpen(false)}
+            userName={userName}
           />
         </aside>
 
