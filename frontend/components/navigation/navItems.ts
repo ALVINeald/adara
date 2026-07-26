@@ -44,4 +44,8 @@ export const NAV_ITEMS: NavItem[] = [
 // The 4 always-visible mobile bottom-tab items -- Wellness and
 // Therapists live inside "More" instead, since a 6-item bottom bar
 // gets cramped on real phone widths.
-export const MOBILE_TAB_KEYS = ["mood", "companion", "journal", "community"];
+// Order here IS the display order on the mobile bottom bar --
+// MobileBottomTabs maps over this array directly rather than
+// filtering NAV_ITEMS (whose own order stays fixed for the
+// desktop rail and tablet drawer).
+export const MOBILE_TAB_KEYS = ["mood", "community", "companion", "journal"];

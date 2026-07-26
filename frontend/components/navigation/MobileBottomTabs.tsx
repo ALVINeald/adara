@@ -11,9 +11,9 @@ export default function MobileBottomTabs() {
   const pathname = usePathname();
   const [showMore, setShowMore] = useState(false);
 
-  const tabItems = NAV_ITEMS.filter((item) =>
-    MOBILE_TAB_KEYS.includes(item.key)
-  );
+  const tabItems = MOBILE_TAB_KEYS.map((key) =>
+    NAV_ITEMS.find((item) => item.key === key)
+  ).filter((item): item is (typeof NAV_ITEMS)[number] => !!item);
   const moreItems = NAV_ITEMS.filter(
     (item) => !MOBILE_TAB_KEYS.includes(item.key)
   );
