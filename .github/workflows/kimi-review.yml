@@ -1,0 +1,16 @@
+name: Kimi Code Review
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+jobs:
+  kimi-review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - uses: actions/checkout@v4
+      - uses: xiaoju111a/kimi-actions@main
+        with:
+          kimi_api_key: ${{ secrets.KIMI_API_KEY }}
+          github_token: ${{ secrets.GITHUB_TOKEN }}
