@@ -38,7 +38,7 @@ export default function OnboardingWizard() {
       return;
     }
 
-    router.push("/dashboard");
+    router.push("/mood");
   }
 
   function previousStep() {

@@ -62,7 +62,7 @@ async function handleSubmit(
     }
   }
 
-  router.push("/dashboard");
+  router.push("/mood");
 }
 
   return (
