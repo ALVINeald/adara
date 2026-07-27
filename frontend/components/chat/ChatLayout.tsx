@@ -210,74 +210,77 @@ export default function ChatLayout() {
     : messages;
 
   return (
-    <main className="flex min-h-screen flex-col bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)]">
+    <main className="flex min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)]">
 
-      {isSidebarOpen && (
-        <div
-          className="fixed inset-y-0 left-0 right-0 z-40 bg-black/20 lg:left-20"
-          onClick={() => setIsSidebarOpen(false)}
-        />
-      )}
-
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 w-80 max-w-[85vw] border-r border-slate-200 bg-white transition-transform duration-300 lg:left-20 ${
-          isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      <div
+        className={`fixed inset-0 z-50 bg-white transition-transform duration-300 md:static md:z-auto md:flex-shrink-0 md:transform-none md:overflow-hidden md:border-r md:border-slate-200 md:transition-[width] md:duration-300 ${
+          isSidebarOpen
+            ? "translate-x-0 md:w-80"
+            : "-translate-x-full md:w-0"
         }`}
       >
-        <ChatSidebar
-          conversations={conversations}
-          activeConversationId={activeConversationId}
-          onSelectConversation={(id) => {
-            setActiveConversationId(id);
-            setIsSidebarOpen(false);
-          }}
-          onNewConversation={startNewConversation}
-          onDeleteConversation={deleteConversation}
-          onRenameConversation={renameConversation}
-          onClose={() => setIsSidebarOpen(false)}
-          userName={userName}
-        />
-      </aside>
-
-      <ChatHeader
-        onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
-      />
-
-      <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8">
-        <ChatWindow messages={displayMessages} isTyping={isTyping} />
-      </div>
-
-      <div className="px-4 md:px-8">
-        {messages.length === 0 && (
-          <SuggestedPrompts onSelect={sendMessage} />
-        )}
-
-        {sendError && (
-          <div className="mb-4 flex items-center justify-between rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
-            <span>
-              {sendError.timedOut
-                ? "Adara is taking too long to respond. Your message is saved."
-                : "Adara couldn't respond. Your message is saved."}
-            </span>
-            <button
-              onClick={() => {
-                const text = sendError.text;
-                setSendError(null);
-                requestAIReply(text);
-              }}
-              className="font-medium underline"
-            >
-              Retry
-            </button>
-          </div>
-        )}
-      </div>
-
-      <div className="mx-4 mb-4 rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-lg backdrop-blur-xl md:mx-8 md:mb-6">
-        <div className="mx-auto max-w-3xl">
-          <ChatInput onSend={sendMessage} />
+        <div className="h-full w-full md:w-80">
+          <ChatSidebar
+            conversations={conversations}
+            activeConversationId={activeConversationId}
+            onSelectConversation={(id) => {
+              setActiveConversationId(id);
+              setIsSidebarOpen(false);
+            }}
+            onNewConversation={startNewConversation}
+            onDeleteConversation={deleteConversation}
+            onRenameConversation={renameConversation}
+            onClose={() => setIsSidebarOpen(false)}
+            userName={userName}
+          />
         </div>
       </div>
+
+      <section
+        className={`min-w-0 flex-1 flex-col ${
+          isSidebarOpen ? "hidden md:flex" : "flex"
+        }`}
+      >
+        <ChatHeader
+          onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+        />
+
+        <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8">
+          <ChatWindow messages={displayMessages} isTyping={isTyping} />
+        </div>
+
+        <div className="px-4 md:px-8">
+          {messages.length === 0 && (
+            <SuggestedPrompts onSelect={sendMessage} />
+          )}
+
+          {sendError && (
+            <div className="mb-4 flex items-center justify-between rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
+              <span>
+                {sendError.timedOut
+                  ? "Adara is taking too long to respond. Your message is saved."
+                  : "Adara couldn't respond. Your message is saved."}
+              </span>
+              <button
+                onClick={() => {
+                  const text = sendError.text;
+                  setSendError(null);
+                  requestAIReply(text);
+                }}
+                className="font-medium underline"
+              >
+                Retry
+              </button>
+            </div>
+          )}
+        </div>
+
+        <div className="mx-4 mb-4 rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-lg backdrop-blur-xl md:mx-8 md:mb-6">
+          <div className="mx-auto max-w-3xl">
+            <ChatInput onSend={sendMessage} />
+          </div>
+        </div>
+      </section>
 
     </main>
   );
