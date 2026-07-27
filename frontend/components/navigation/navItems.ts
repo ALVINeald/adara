@@ -23,6 +23,7 @@ export interface NavItem {
 
 export const NAV_ITEMS: NavItem[] = [
   { key: "mood", label: "Mood", href: "/mood", icon: Smile },
+  { key: "community", label: "Community", href: "/communities", icon: Users },
   { key: "companion", label: "Companion", href: "/chat", icon: Sparkles },
   { key: "journal", label: "Journal", href: "/journal", icon: BookOpen },
   {
@@ -37,7 +38,6 @@ export const NAV_ITEMS: NavItem[] = [
       { label: "Articles", href: "/wellness/articles" },
     ],
   },
-  { key: "community", label: "Community", href: "/communities", icon: Users },
   { key: "therapists", label: "Therapists", href: "/therapists", icon: Calendar },
 ];
 

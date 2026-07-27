@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { useRouter, usePathname } from "next/navigation";
 import {
   Plus,
   Pencil,
@@ -13,7 +12,6 @@ import {
 
 import type { Conversation } from "./types";
 import { formatConversationTimestamp } from "@/lib/format";
-import { NAV_ITEMS } from "@/components/navigation/navItems";
 
 interface ChatSidebarProps {
   conversations: Conversation[];
@@ -29,17 +27,6 @@ interface ChatSidebarProps {
   userName: string;
 }
 
-// Order requested specifically for this combined panel -- separate
-// from the global nav shell's own order, which stays unchanged.
-const PANEL_NAV_ORDER = [
-  "companion",
-  "community",
-  "journal",
-  "wellness",
-  "mood",
-  "therapists",
-];
-
 export default function ChatSidebar({
   conversations,
   activeConversationId,
@@ -50,9 +37,6 @@ export default function ChatSidebar({
   onClose,
   userName,
 }: ChatSidebarProps) {
-  const router = useRouter();
-  const pathname = usePathname();
-
   const [search, setSearch] = useState("");
   const [editingId, setEditingId] =
     useState<string | null>(null);
@@ -70,12 +54,6 @@ export default function ChatSidebar({
         .includes(search.toLowerCase())
     );
   }, [search, conversations]);
-
-  const orderedNavItems = useMemo(() => {
-    return PANEL_NAV_ORDER.map((key) =>
-      NAV_ITEMS.find((item) => item.key === key)
-    ).filter((item): item is (typeof NAV_ITEMS)[number] => !!item);
-  }, []);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -107,10 +85,6 @@ export default function ChatSidebar({
   function handleDelete(id: string) {
     onDeleteConversation(id);
     setOpenMenuId(null);
-  }
-
-  function isActive(href: string) {
-    return pathname === href || pathname.startsWith(href + "/");
   }
 
   return (
@@ -272,39 +246,6 @@ export default function ChatSidebar({
           ))
         )}
 
-      </div>
-
-      {/* App navigation -- combined into this same panel */}
-
-      <div className="border-t border-slate-200 p-4">
-        <p className="mb-2 px-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
-          Explore
-        </p>
-
-        <div className="flex flex-col gap-1">
-          {orderedNavItems.map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.href);
-
-            return (
-              <button
-                key={item.key}
-                onClick={() => {
-                  onClose();
-                  router.push(item.href);
-                }}
-                className={`flex items-center gap-3 rounded-xl px-3 py-2.5 text-left transition ${
-                  active
-                    ? "bg-cyan-50 text-cyan-700"
-                    : "text-slate-600 hover:bg-slate-50"
-                }`}
-              >
-                <Icon className="h-4 w-4" />
-                <span className="text-sm font-medium">{item.label}</span>
-              </button>
-            );
-          })}
-        </div>
       </div>
 
       {/* Footer */}

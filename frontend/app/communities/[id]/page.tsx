@@ -146,8 +146,8 @@ export default function CommunityChatPage() {
         <div ref={bottomRef} />
       </div>
 
-      <div className="border-t border-slate-200 bg-white/70 p-4 backdrop-blur-xl">
-        <div className="mx-auto flex max-w-3xl items-end gap-3">
+      <div className="mx-4 mb-4 rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-lg backdrop-blur-xl md:mx-0 md:mb-0 md:rounded-none md:border-0 md:border-t md:bg-white/70 md:p-4 md:shadow-none">
+        <div className="mx-auto flex w-full max-w-3xl items-end gap-3">
           <textarea
             rows={1}
             value={input}

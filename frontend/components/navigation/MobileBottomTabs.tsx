@@ -24,7 +24,7 @@ export default function MobileBottomTabs() {
 
   return (
     <>
-      <nav className="fixed bottom-0 left-0 right-0 z-40 border-t border-slate-200 bg-white/95 backdrop-blur-lg md:hidden">
+      <nav className="fixed bottom-4 left-4 right-4 z-40 rounded-3xl border border-slate-200 bg-white/95 shadow-lg backdrop-blur-lg md:hidden">
         <div className="flex items-center justify-around px-2 py-2">
           {tabItems.map((item) => {
             const Icon = item.icon;
