@@ -216,10 +216,10 @@ export default function ChatLayout() {
         className={`fixed inset-0 z-50 bg-white transition-transform duration-300 md:static md:z-auto md:flex-shrink-0 md:transform-none md:overflow-hidden md:border-r md:border-slate-200 md:transition-[width] md:duration-300 ${
           isSidebarOpen
             ? "translate-x-0 md:w-80"
-            : "-translate-x-full md:w-0"
+            : "-translate-x-full md:w-14"
         }`}
       >
-        <div className="h-full w-full md:w-80">
+        <div className="h-full w-full">
           <ChatSidebar
             conversations={conversations}
             activeConversationId={activeConversationId}
@@ -230,7 +230,8 @@ export default function ChatLayout() {
             onNewConversation={startNewConversation}
             onDeleteConversation={deleteConversation}
             onRenameConversation={renameConversation}
-            onClose={() => setIsSidebarOpen(false)}
+            onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+            isExpanded={isSidebarOpen}
             userName={userName}
           />
         </div>

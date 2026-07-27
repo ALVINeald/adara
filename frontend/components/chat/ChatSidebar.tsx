@@ -7,7 +7,7 @@ import {
   Search,
   Trash2,
   MoreHorizontal,
-  X,
+  PanelLeft,
 } from "lucide-react";
 
 import type { Conversation } from "./types";
@@ -23,7 +23,8 @@ interface ChatSidebarProps {
     id: string,
     title: string
   ) => void;
-  onClose: () => void;
+  onToggleSidebar: () => void;
+  isExpanded: boolean;
   userName: string;
 }
 
@@ -34,7 +35,8 @@ export default function ChatSidebar({
   onNewConversation,
   onDeleteConversation,
   onRenameConversation,
-  onClose,
+  onToggleSidebar,
+  isExpanded,
   userName,
 }: ChatSidebarProps) {
   const [search, setSearch] = useState("");
@@ -87,6 +89,36 @@ export default function ChatSidebar({
     setOpenMenuId(null);
   }
 
+  if (!isExpanded) {
+    return (
+      <div className="flex h-full flex-col items-center gap-3 py-4">
+        <button
+          onClick={onToggleSidebar}
+          title="Expand conversations"
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100"
+        >
+          <PanelLeft className="h-5 w-5" />
+        </button>
+
+        <button
+          onClick={onNewConversation}
+          title="New conversation"
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-600 text-white transition hover:bg-cyan-700"
+        >
+          <Plus className="h-5 w-5" />
+        </button>
+
+        <button
+          onClick={onToggleSidebar}
+          title="Search conversations"
+          className="flex h-10 w-10 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100"
+        >
+          <Search className="h-5 w-5" />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="flex h-full flex-col">
 
@@ -109,11 +141,11 @@ export default function ChatSidebar({
             </button>
 
             <button
-              onClick={onClose}
-              title="Close"
+              onClick={onToggleSidebar}
+              title="Collapse"
               className="flex h-9 w-9 items-center justify-center rounded-xl text-slate-400 transition hover:bg-slate-100"
             >
-              <X className="h-5 w-5" />
+              <PanelLeft className="h-5 w-5" />
             </button>
           </div>
         </div>
