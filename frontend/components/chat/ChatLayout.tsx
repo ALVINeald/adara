@@ -219,7 +219,7 @@ export default function ChatLayout() {
     : messages;
 
   return (
-    <main className="flex min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)]">
+    <main className="flex h-screen h-dvh overflow-hidden bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)]">
 
       <div
         className={`fixed inset-0 z-50 bg-white transition-transform duration-300 md:static md:z-auto md:flex-shrink-0 md:transform-none md:overflow-hidden md:transition-[width] md:duration-300 ${
@@ -285,7 +285,7 @@ export default function ChatLayout() {
           )}
         </div>
 
-        <div className="mx-4 mb-4 rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-lg backdrop-blur-xl md:mx-8 md:mb-6">
+        <div className="mx-4 mb-24 rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-lg backdrop-blur-xl md:mx-8 md:mb-6">
           <div className="mx-auto max-w-3xl">
             <ChatInput onSend={sendMessage} />
           </div>

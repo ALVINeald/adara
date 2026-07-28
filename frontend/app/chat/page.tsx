@@ -7,7 +7,7 @@ export default function ChatPage() {
   return (
     <AuthGuard>
       <ChatSidebarProvider>
-        <AppShell>
+        <AppShell noBottomPadding>
           <ChatLayout />
         </AppShell>
       </ChatSidebarProvider>
