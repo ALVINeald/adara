@@ -2,14 +2,17 @@
 
 import { useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, PanelLeftOpen, Plus, Search } from "lucide-react";
 
 import { NAV_ITEMS } from "./navItems";
+import { useOptionalChatSidebar } from "@/lib/chatSidebarContext";
 
 export default function DesktopRail() {
   const router = useRouter();
   const pathname = usePathname();
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
+  const chatSidebar = useOptionalChatSidebar();
+  const onCompanionPage = pathname === "/chat";
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + "/");
@@ -76,6 +79,40 @@ export default function DesktopRail() {
           </div>
         );
       })}
+
+      {onCompanionPage && chatSidebar && (
+        <>
+          <div className="my-1 h-px w-8 bg-slate-200" />
+
+          <button
+            onClick={() => chatSidebar.setIsSidebarOpen((prev) => !prev)}
+            title={chatSidebar.isSidebarOpen ? "Collapse conversations" : "Expand conversations"}
+            className={`mx-auto flex h-11 w-11 items-center justify-center rounded-xl transition ${
+              chatSidebar.isSidebarOpen
+                ? "bg-slate-100 text-slate-700"
+                : "text-slate-500 hover:bg-slate-100"
+            }`}
+          >
+            <PanelLeftOpen className="h-5 w-5" />
+          </button>
+
+          <button
+            onClick={() => chatSidebar.triggerNewConversation()}
+            title="New conversation"
+            className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100"
+          >
+            <Plus className="h-5 w-5" />
+          </button>
+
+          <button
+            onClick={() => chatSidebar.setIsSidebarOpen(true)}
+            title="Search conversations"
+            className="mx-auto flex h-11 w-11 items-center justify-center rounded-xl text-slate-500 transition hover:bg-slate-100"
+          >
+            <Search className="h-5 w-5" />
+          </button>
+        </>
+      )}
     </nav>
   );
 }

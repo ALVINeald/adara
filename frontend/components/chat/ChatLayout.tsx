@@ -12,6 +12,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useConversations } from "@/hooks/useConversations";
 import { useMessages } from "@/hooks/useMessages";
 import { getProfileNamesByIds } from "@/lib/profiles";
+import { useChatSidebar } from "@/lib/chatSidebarContext";
 
 import type { AIMessage } from "@/lib/ai/types";
 
@@ -29,7 +30,11 @@ export default function ChatLayout() {
   } = useConversations(user?.id);
 
   const [activeConversationId, setActiveConversationId] = useState("");
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const {
+    isSidebarOpen,
+    setIsSidebarOpen,
+    registerNewConversationHandler,
+  } = useChatSidebar();
   const [userName, setUserName] = useState("");
 
   useEffect(() => {
@@ -171,6 +176,10 @@ export default function ChatLayout() {
     setIsSidebarOpen(false);
   }
 
+  useEffect(() => {
+    registerNewConversationHandler(startNewConversation);
+  });
+
   async function deleteConversation(id: string) {
     await removeConversation(id);
 
@@ -213,10 +222,10 @@ export default function ChatLayout() {
     <main className="flex min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)]">
 
       <div
-        className={`fixed inset-0 z-50 bg-white transition-transform duration-300 md:static md:z-auto md:flex-shrink-0 md:transform-none md:overflow-hidden md:border-r md:border-slate-200 md:transition-[width] md:duration-300 ${
+        className={`fixed inset-0 z-50 bg-white transition-transform duration-300 md:static md:z-auto md:flex-shrink-0 md:transform-none md:overflow-hidden md:transition-[width] md:duration-300 ${
           isSidebarOpen
-            ? "translate-x-0 md:w-80"
-            : "-translate-x-full md:w-14"
+            ? "translate-x-0 md:w-80 md:border-r md:border-slate-200"
+            : "-translate-x-full md:w-14 md:border-r md:border-slate-200 lg:w-0 lg:border-r-0"
         }`}
       >
         <div className="h-full w-full">
