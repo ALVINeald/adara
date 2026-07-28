@@ -15,6 +15,7 @@ import { getProfileNamesByIds } from "@/lib/profiles";
 import { useChatSidebar } from "@/lib/chatSidebarContext";
 
 import type { AIMessage } from "@/lib/ai/types";
+import type { ChatMessage } from "./types";
 
 const HISTORY_LIMIT = 20;
 
@@ -169,6 +170,22 @@ export default function ChatLayout() {
     await requestAIReply(text);
   }
 
+  function regenerateResponse(message: ChatMessage) {
+    const index = messages.findIndex((item) => item.id === message.id);
+    if (index === -1) return;
+
+    // Walk backwards to find the user message that prompted this
+    // reply, and replay it. This appends a fresh response rather than
+    // replacing the old one in place -- simpler, and the old response
+    // stays visible above the new one rather than silently vanishing.
+    for (let i = index - 1; i >= 0; i--) {
+      if (messages[i].sender === "user") {
+        requestAIReply(messages[i].content);
+        return;
+      }
+    }
+  }
+
   async function startNewConversation() {
     const conversation = await addConversation();
     if (!conversation) return;
@@ -255,8 +272,12 @@ export default function ChatLayout() {
           onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
         />
 
-        <div className="flex-1 overflow-y-auto px-4 py-6 md:px-8">
-          <ChatWindow messages={displayMessages} isTyping={isTyping} />
+        <div className="min-h-0 flex-1">
+          <ChatWindow
+            messages={displayMessages}
+            isTyping={isTyping}
+            onRegenerate={regenerateResponse}
+          />
         </div>
 
         <div className="px-4 md:px-8">
