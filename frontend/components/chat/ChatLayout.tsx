@@ -6,7 +6,6 @@ import ChatHeader from "./ChatHeader";
 import ChatSidebar from "./ChatSidebar";
 import ChatWindow from "./ChatWindow";
 import ChatInput from "./ChatInput";
-import SuggestedPrompts from "./SuggestedPrompts";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useConversations } from "@/hooks/useConversations";
@@ -277,14 +276,11 @@ export default function ChatLayout() {
             messages={displayMessages}
             isTyping={isTyping}
             onRegenerate={regenerateResponse}
+            onSelectPrompt={sendMessage}
           />
         </div>
 
         <div className="px-4 md:px-8">
-          {messages.length === 0 && (
-            <SuggestedPrompts onSelect={sendMessage} />
-          )}
-
           {sendError && (
             <div className="mb-4 flex items-center justify-between rounded-xl bg-red-50 px-4 py-3 text-sm text-red-600">
               <span>

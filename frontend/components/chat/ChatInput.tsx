@@ -40,14 +40,14 @@ export default function ChatInput({
         onChange={(e) => setMessage(e.target.value)}
         onKeyDown={handleKeyDown}
         placeholder="Share what's on your mind..."
-        className="min-h-[56px] flex-1 resize-none rounded-2xl border border-slate-200 bg-white px-5 py-4 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
+        className="min-h-[56px] flex-1 resize-none rounded-3xl border border-slate-200 bg-white px-5 py-4 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
       />
 
       <button
         type="button"
         onClick={send}
         disabled={!message.trim()}
-        className="flex h-14 w-14 items-center justify-center rounded-2xl bg-cyan-600 text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
+        className="flex h-14 w-14 items-center justify-center rounded-full bg-cyan-600 text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
       >
         <SendHorizontal className="h-5 w-5" />
       </button>

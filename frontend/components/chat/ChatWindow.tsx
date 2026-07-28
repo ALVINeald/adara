@@ -1,10 +1,11 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, Sparkles } from "lucide-react";
 
 import MessageBubble from "./MessageBubble";
 import TypingIndicator from "./TypingIndicator";
+import SuggestedPrompts from "./SuggestedPrompts";
 
 import type { ChatMessage } from "./types";
 
@@ -12,16 +13,20 @@ interface ChatWindowProps {
   messages: ChatMessage[];
   isTyping: boolean;
   onRegenerate: (message: ChatMessage) => void;
+  onSelectPrompt: (prompt: string) => void;
 }
 
 export default function ChatWindow({
   messages,
   isTyping,
   onRegenerate,
+  onSelectPrompt,
 }: ChatWindowProps) {
   const bottomRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showScrollButton, setShowScrollButton] = useState(false);
+
+  const isEmpty = messages.length === 0 && !isTyping;
 
   useEffect(() => {
     // Only auto-scroll if the person is already near the bottom --
@@ -50,6 +55,22 @@ export default function ChatWindow({
 
   function scrollToBottom() {
     bottomRef.current?.scrollIntoView({ behavior: "smooth" });
+  }
+
+  if (isEmpty) {
+    return (
+      <div className="flex h-full flex-col items-center justify-center gap-6 px-6">
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-50">
+          <Sparkles className="h-6 w-6 text-cyan-600" />
+        </div>
+
+        <p className="text-center text-lg text-slate-500">
+          I'm here whenever you're ready.
+        </p>
+
+        <SuggestedPrompts onSelect={onSelectPrompt} />
+      </div>
+    );
   }
 
   return (
