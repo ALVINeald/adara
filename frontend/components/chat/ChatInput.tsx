@@ -9,7 +9,7 @@ interface ChatInputProps {
   onStop: () => void;
 }
 
-const MAX_HEIGHT_PX = 160;
+const MAX_HEIGHT_PX = 240;
 
 export default function ChatInput({
   onSend,
@@ -69,7 +69,7 @@ export default function ChatInput({
         }}
         onKeyDown={handleKeyDown}
         placeholder="Share what's on your mind..."
-        className="min-h-[56px] flex-1 resize-none overflow-y-auto rounded-3xl border border-slate-200 bg-white px-5 py-4 outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
+        className="chat-composer-scroll min-h-[40px] flex-1 resize-none overflow-y-auto bg-transparent px-2 py-2 text-[15px] text-slate-900 outline-none placeholder:text-slate-400"
         style={{ maxHeight: `${MAX_HEIGHT_PX}px` }}
       />
 
