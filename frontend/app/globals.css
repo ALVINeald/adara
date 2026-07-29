@@ -68,3 +68,15 @@ body {
   background-color: rgb(203 213 225);
   border-radius: 9999px;
 }
+
+/* Reliable full-viewport height on mobile. Written as two
+   consecutive declarations of the same property (not as separate
+   Tailwind classes) specifically because a browser that doesn't
+   support dvh will simply skip that invalid line and keep the vh
+   value above it -- Tailwind's h-screen + h-dvh combo can't guarantee
+   this fallback order since it depends on Tailwind's own utility
+   generation order, not the order written in the className. */
+.chat-shell-height {
+  height: 100vh;
+  height: 100dvh;
+}
