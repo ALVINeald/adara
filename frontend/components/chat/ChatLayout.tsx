@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 import ChatHeader from "./ChatHeader";
 import ChatSidebar from "./ChatSidebar";
@@ -59,6 +59,9 @@ export default function ChatLayout() {
     timedOut?: boolean;
   } | null>(null);
 
+  const abortControllerRef = useRef<AbortController | null>(null);
+  const wasStoppedByUserRef = useRef(false);
+
   useEffect(() => {
     if (conversations.length > 0 && !activeConversationId) {
       setActiveConversationId(conversations[0].id);
@@ -82,6 +85,9 @@ export default function ChatLayout() {
     setStreamingReply(null);
 
     const controller = new AbortController();
+    abortControllerRef.current = controller;
+    wasStoppedByUserRef.current = false;
+
     let idleTimeoutId: ReturnType<typeof setTimeout> = setTimeout(() => {}, 0);
     clearTimeout(idleTimeoutId);
 
@@ -89,6 +95,11 @@ export default function ChatLayout() {
       clearTimeout(idleTimeoutId);
       idleTimeoutId = setTimeout(() => controller.abort(), 20000);
     }
+
+    // Hoisted out of the try block (rather than declared inside it)
+    // so the catch block below can still see whatever streamed in
+    // before a manual stop or timeout.
+    let accumulated = "";
 
     try {
       const history: AIMessage[] = [
@@ -116,7 +127,6 @@ export default function ChatLayout() {
 
       const reader = response.body.getReader();
       const decoder = new TextDecoder();
-      let accumulated = "";
       let firstChunkReceived = false;
 
       while (true) {
@@ -144,13 +154,32 @@ export default function ChatLayout() {
       await saveMessage("assistant", accumulated);
     } catch (error) {
       console.error("AI reply failed:", error);
-      const timedOut = error instanceof Error && error.name === "AbortError";
-      setSendError({ text: latestUserText, timedOut });
+
+      const isAbort = error instanceof Error && error.name === "AbortError";
+      const wasManualStop = wasStoppedByUserRef.current;
+
+      if (isAbort && wasManualStop) {
+        // Deliberately stopped -- keep whatever streamed in so far
+        // as the final message instead of treating it as a failure.
+        // Nothing to save if the stop landed before any text arrived.
+        if (accumulated.trim()) {
+          await saveMessage("assistant", accumulated);
+        }
+      } else {
+        setSendError({ text: latestUserText, timedOut: isAbort });
+      }
     } finally {
       clearTimeout(idleTimeoutId);
       setIsTyping(false);
       setStreamingReply(null);
+      abortControllerRef.current = null;
+      wasStoppedByUserRef.current = false;
     }
+  }
+
+  function stopGenerating() {
+    wasStoppedByUserRef.current = true;
+    abortControllerRef.current?.abort();
   }
 
   async function sendMessage(text: string) {
@@ -304,7 +333,11 @@ export default function ChatLayout() {
 
         <div className="mx-4 mb-24 rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-lg backdrop-blur-xl md:mx-8 md:mb-6">
           <div className="mx-auto max-w-3xl">
-            <ChatInput onSend={sendMessage} />
+            <ChatInput
+              onSend={sendMessage}
+              isGenerating={isTyping || streamingReply !== null}
+              onStop={stopGenerating}
+            />
           </div>
         </div>
       </section>

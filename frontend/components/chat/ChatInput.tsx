@@ -1,16 +1,20 @@
 "use client";
 
 import { KeyboardEvent, useRef, useState } from "react";
-import { SendHorizontal } from "lucide-react";
+import { SendHorizontal, Square } from "lucide-react";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
+  isGenerating: boolean;
+  onStop: () => void;
 }
 
 const MAX_HEIGHT_PX = 160;
 
 export default function ChatInput({
   onSend,
+  isGenerating,
+  onStop,
 }: ChatInputProps) {
   const [message, setMessage] = useState("");
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -24,6 +28,8 @@ export default function ChatInput({
   }
 
   function send() {
+    if (isGenerating) return;
+
     const trimmed = message.trim();
 
     if (!trimmed) return;
@@ -67,14 +73,25 @@ export default function ChatInput({
         style={{ maxHeight: `${MAX_HEIGHT_PX}px` }}
       />
 
-      <button
-        type="button"
-        onClick={send}
-        disabled={!message.trim()}
-        className="flex h-14 w-14 items-center justify-center rounded-full bg-cyan-600 text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
-      >
-        <SendHorizontal className="h-5 w-5" />
-      </button>
+      {isGenerating ? (
+        <button
+          type="button"
+          onClick={onStop}
+          title="Stop generating"
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-800 text-white transition hover:bg-slate-900"
+        >
+          <Square className="h-4 w-4 fill-current" />
+        </button>
+      ) : (
+        <button
+          type="button"
+          onClick={send}
+          disabled={!message.trim()}
+          className="flex h-14 w-14 items-center justify-center rounded-full bg-cyan-600 text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
+        >
+          <SendHorizontal className="h-5 w-5" />
+        </button>
+      )}
 
     </div>
   );
