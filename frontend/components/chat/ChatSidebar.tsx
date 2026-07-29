@@ -297,7 +297,7 @@ export default function ChatSidebar({
             </p>
 
             <p className="text-sm text-slate-500">
-              Your safe space 💙
+              Your safe space to reflect, heal and grow.
             </p>
 
           </div>
