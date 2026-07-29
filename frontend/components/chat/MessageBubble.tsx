@@ -111,6 +111,10 @@ export default function MessageBubble({
           >
             {message.content}
           </ReactMarkdown>
+
+          {isStreaming && (
+            <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse rounded-sm bg-cyan-500 align-text-bottom" />
+          )}
         </div>
 
         {!isStreaming && (

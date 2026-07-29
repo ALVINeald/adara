@@ -2,7 +2,7 @@ export default function TypingIndicator() {
   return (
     <div className="mb-8 flex justify-start">
 
-      <div className="flex items-center gap-1.5 px-1 py-2">
+      <div className="flex items-center gap-1.5 rounded-full bg-slate-100 px-4 py-3">
 
         <span className="h-1.5 w-1.5 animate-bounce rounded-full bg-cyan-400" />
 
