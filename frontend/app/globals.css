@@ -47,3 +47,24 @@ body {
 .animate-fadeIn {
   animation: fadeIn 0.6s ease-out both;
 }
+
+/* Thin, subtle scrollbar for the chat composer -- only shows once
+   the textarea actually hits its max-height cap, and stays out of
+   the way visually instead of the default chunky OS scrollbar. */
+.chat-composer-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: rgb(203 213 225) transparent;
+}
+
+.chat-composer-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+.chat-composer-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.chat-composer-scroll::-webkit-scrollbar-thumb {
+  background-color: rgb(203 213 225);
+  border-radius: 9999px;
+}
