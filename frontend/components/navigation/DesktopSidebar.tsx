@@ -36,8 +36,6 @@ export default function DesktopSidebar({
   function handleClick(item: (typeof NAV_ITEMS)[number]) {
     if (item.subItems) {
       if (collapsed) {
-        // Sub-items need label space -- expand the rail first rather
-        // than trying to fit a flyout off a 64px collapsed strip.
         onToggleCollapsed();
         setExpandedKey(item.key);
         return;
@@ -50,7 +48,7 @@ export default function DesktopSidebar({
 
   return (
     <nav
-      className={`fixed left-0 top-0 z-40 hidden h-screen flex-col border-r border-slate-200 bg-white transition-[width] duration-200 lg:flex ${
+      className={`fixed left-0 top-0 z-40 hidden h-screen flex-col border-r border-slate-800 bg-slate-900 transition-[width] duration-200 lg:flex ${
         collapsed ? "w-20" : "w-64"
       }`}
     >
@@ -60,12 +58,12 @@ export default function DesktopSidebar({
       <div className="flex items-center justify-between gap-2 p-4">
 
         <div className="flex items-center gap-2 overflow-hidden">
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-cyan-600">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl bg-violet-600">
             <Sparkles className="h-5 w-5 text-white" />
           </div>
 
           {!collapsed && (
-            <span className="truncate text-lg font-bold text-slate-900">
+            <span className="truncate text-lg font-bold text-white">
               Adara
             </span>
           )}
@@ -74,7 +72,7 @@ export default function DesktopSidebar({
         <button
           onClick={onToggleCollapsed}
           title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="shrink-0 rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100"
+          className="shrink-0 rounded-lg p-1.5 text-slate-400 transition hover:bg-white/5 hover:text-white"
         >
           {collapsed ? (
             <PanelLeftOpen className="h-4 w-4" />
@@ -90,7 +88,7 @@ export default function DesktopSidebar({
 
       {!collapsed && (
         <div className="px-4 pb-3">
-          <div className="flex items-center gap-2 rounded-xl border border-slate-200 px-3 py-2 text-sm text-slate-400">
+          <div className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm text-slate-400">
             <Search className="h-4 w-4" />
             <span>Search</span>
           </div>
@@ -115,8 +113,8 @@ export default function DesktopSidebar({
                   collapsed ? "justify-center" : ""
                 } ${
                   active
-                    ? "bg-cyan-600 text-white"
-                    : "text-slate-600 hover:bg-slate-100"
+                    ? "bg-violet-600 text-white"
+                    : "text-slate-300 hover:bg-white/5 hover:text-white"
                 }`}
               >
                 <Icon className="h-5 w-5 shrink-0" />
@@ -131,13 +129,13 @@ export default function DesktopSidebar({
                   <ChevronDown
                     className={`h-4 w-4 shrink-0 transition-transform ${
                       isExpanded ? "rotate-180" : ""
-                    } ${active ? "text-white" : "text-slate-400"}`}
+                    } ${active ? "text-white" : "text-slate-500"}`}
                   />
                 )}
               </button>
 
               {!collapsed && isExpanded && item.subItems && (
-                <div className="ml-8 mt-1 flex flex-col gap-0.5 border-l border-slate-200 pl-3">
+                <div className="ml-8 mt-1 flex flex-col gap-0.5 border-l border-slate-700 pl-3">
                   {item.subItems.map((sub) => (
                     <button
                       key={sub.href}
@@ -145,7 +143,7 @@ export default function DesktopSidebar({
                         setExpandedKey(null);
                         router.push(sub.href);
                       }}
-                      className="rounded-lg px-3 py-1.5 text-left text-sm text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+                      className="rounded-lg px-3 py-1.5 text-left text-sm text-slate-400 transition hover:bg-white/5 hover:text-white"
                     >
                       {sub.label}
                     </button>
@@ -159,7 +157,7 @@ export default function DesktopSidebar({
 
         {onCompanionPage && chatSidebar && (
           <>
-            <div className="my-2 h-px bg-slate-200" />
+            <div className="my-2 h-px bg-slate-800" />
 
             <button
               onClick={() =>
@@ -176,8 +174,8 @@ export default function DesktopSidebar({
                 collapsed ? "justify-center" : ""
               } ${
                 chatSidebar.isSidebarOpen
-                  ? "bg-slate-100 text-slate-800"
-                  : "text-slate-600 hover:bg-slate-100"
+                  ? "bg-white/10 text-white"
+                  : "text-slate-300 hover:bg-white/5 hover:text-white"
               }`}
             >
               <PanelLeftOpen className="h-5 w-5 shrink-0" />
@@ -189,7 +187,7 @@ export default function DesktopSidebar({
             <button
               onClick={() => chatSidebar.triggerNewConversation()}
               title={collapsed ? "New conversation" : undefined}
-              className={`mb-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-slate-600 transition hover:bg-slate-100 ${
+              className={`mb-1 flex w-full items-center gap-3 rounded-xl px-3 py-2.5 text-left text-slate-300 transition hover:bg-white/5 hover:text-white ${
                 collapsed ? "justify-center" : ""
               }`}
             >
@@ -206,19 +204,19 @@ export default function DesktopSidebar({
           shown elsewhere in the app; there's no dedicated /settings
           page yet, so this intentionally doesn't invent one. */}
 
-      <div className="border-t border-slate-200 p-3">
+      <div className="border-t border-slate-800 p-3">
         <div
           className={`flex items-center gap-3 rounded-xl px-2 py-2 ${
             collapsed ? "justify-center" : ""
           }`}
         >
-          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-cyan-100 text-sm font-semibold text-cyan-700">
+          <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-sm font-semibold text-violet-300">
             A
           </div>
 
           {!collapsed && (
             <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-slate-800">
+              <p className="truncate text-sm font-medium text-white">
                 Alvin
               </p>
             </div>
