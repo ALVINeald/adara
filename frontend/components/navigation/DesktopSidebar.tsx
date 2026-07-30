@@ -200,6 +200,25 @@ export default function DesktopSidebar({
         )}
       </div>
 
+      {/* Motivational card -- View Progress routes to /mood, since
+          that's the real page where streak/mood history actually
+          lives; there's no dedicated standalone "progress" page. */}
+
+      {!collapsed && (
+        <div className="mx-3 mb-3 rounded-2xl bg-gradient-to-br from-violet-600/20 to-violet-600/5 p-4">
+          <p className="text-sm text-slate-300">
+            You&apos;re doing great, Alvin. Keep nurturing your mind.{" "}
+            <span aria-hidden="true">✨</span>
+          </p>
+          <button
+            onClick={() => router.push("/mood")}
+            className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
+          >
+            View Progress
+          </button>
+        </div>
+      )}
+
       {/* User profile card -- links to the profile info already
           shown elsewhere in the app; there's no dedicated /settings
           page yet, so this intentionally doesn't invent one. */}

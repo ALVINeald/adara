@@ -1,4 +1,7 @@
-import { Flame, Heart } from "lucide-react";
+"use client";
+
+import { useRouter } from "next/navigation";
+import { ArrowRight, Flame, Heart } from "lucide-react";
 
 import type { MoodTrend } from "./moodTrend";
 
@@ -44,7 +47,7 @@ function Sparkline({ points }: { points: (number | null)[] }) {
       <path
         d={path}
         fill="none"
-        stroke="rgb(8 145 178)"
+        stroke="rgb(124 58 237)"
         strokeWidth="2.5"
         strokeLinecap="round"
         strokeLinejoin="round"
@@ -57,6 +60,12 @@ export default function DashboardStatCards({
   streak,
   trend,
 }: DashboardStatCardsProps) {
+  const router = useRouter();
+
+  // Progress toward a 30-day streak milestone -- a real, if somewhat
+  // arbitrary, target rather than a decorative bar with no basis.
+  const streakProgress = Math.min(streak / 30, 1) * 100;
+
   return (
     <div className="mb-6 grid gap-4 md:grid-cols-3">
 
@@ -70,9 +79,15 @@ export default function DashboardStatCards({
             <Flame className="h-5 w-5 text-orange-500" />
           </div>
         </div>
-        <p className="mt-1 text-sm text-slate-400">
+        <p className="mb-3 mt-1 text-sm text-slate-400">
           {streak > 0 ? "Amazing consistency!" : "Check in today to start one."}
         </p>
+        <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
+          <div
+            className="h-full rounded-full bg-violet-600 transition-all"
+            style={{ width: `${streakProgress}%` }}
+          />
+        </div>
       </div>
 
       <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
@@ -104,16 +119,30 @@ export default function DashboardStatCards({
       </div>
 
       {/* Static -- no real "daily focus" feature/data source exists
-          yet, same reasoning as the Companion header's Focus chip. */}
+          yet, same reasoning as the Companion header's Focus chip.
+          The arrow does something real though: it opens Journal so
+          you can actually write about it, rather than going nowhere. */}
       <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
-        <p className="text-sm font-medium text-slate-500">Today&apos;s Focus</p>
-        <div className="mt-3 flex items-center gap-3">
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-purple-50">
-            <Heart className="h-5 w-5 text-purple-500" />
+        <div className="flex items-start justify-between">
+          <div>
+            <p className="text-sm font-medium text-slate-500">Today&apos;s Focus</p>
+            <div className="mt-3 flex items-center gap-3">
+              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-violet-50">
+                <Heart className="h-5 w-5 text-violet-500" />
+              </div>
+              <p className="text-lg font-semibold text-slate-900">Self Compassion</p>
+            </div>
+            <p className="mt-2 text-sm text-slate-400">Be kind to yourself today.</p>
           </div>
-          <p className="text-lg font-semibold text-slate-900">Self Compassion</p>
+
+          <button
+            onClick={() => router.push("/journal")}
+            title="Reflect on this in your journal"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-600"
+          >
+            <ArrowRight className="h-4 w-4" />
+          </button>
         </div>
-        <p className="mt-2 text-sm text-slate-400">Be kind to yourself today.</p>
       </div>
 
     </div>
