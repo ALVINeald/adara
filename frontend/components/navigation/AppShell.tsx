@@ -1,10 +1,10 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import MobileBottomTabs from "./MobileBottomTabs";
 import TabletHamburgerNav from "./TabletHamburgerNav";
-import DesktopRail from "./DesktopRail";
+import DesktopSidebar from "./DesktopSidebar";
 
 interface AppShellProps {
   children: ReactNode;
@@ -15,19 +15,51 @@ interface AppShellProps {
   noBottomPadding?: boolean;
 }
 
+const SIDEBAR_COLLAPSED_KEY = "adara:sidebar-collapsed";
+
 export default function AppShell({
   children,
   noBottomPadding = false,
 }: AppShellProps) {
+  // Default to expanded on first render (matches server-rendered
+  // HTML, avoiding a hydration mismatch), then sync with whatever
+  // was saved -- AppShell remounts on every page navigation since
+  // it's rendered per-page rather than in a shared root layout, so
+  // without this the sidebar would snap back to expanded every time
+  // you clicked a nav item.
+  const [collapsed, setCollapsed] = useState(false);
+
+  useEffect(() => {
+    const saved = localStorage.getItem(SIDEBAR_COLLAPSED_KEY);
+    if (saved === "true") {
+      setCollapsed(true);
+    }
+  }, []);
+
+  function toggleCollapsed() {
+    setCollapsed((prev) => {
+      const next = !prev;
+      localStorage.setItem(SIDEBAR_COLLAPSED_KEY, String(next));
+      return next;
+    });
+  }
+
   return (
     <>
       <TabletHamburgerNav />
-      <DesktopRail />
+      <DesktopSidebar
+        collapsed={collapsed}
+        onToggleCollapsed={toggleCollapsed}
+      />
 
-      {/* Content offsets: room for the desktop rail on the left,
-          bottom padding on mobile so content isn't hidden behind
-          the fixed tab bar. */}
-      <div className={`lg:pl-20 ${noBottomPadding ? "" : "pb-20 md:pb-0"}`}>
+      {/* Content offsets: room for the desktop sidebar on the left
+          (its width changes with collapsed state), bottom padding on
+          mobile so content isn't hidden behind the fixed tab bar. */}
+      <div
+        className={`${collapsed ? "lg:pl-20" : "lg:pl-64"} transition-[padding] duration-200 ${
+          noBottomPadding ? "" : "pb-20 md:pb-0"
+        }`}
+      >
         {children}
       </div>
 
