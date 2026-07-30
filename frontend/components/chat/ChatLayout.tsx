@@ -298,6 +298,7 @@ export default function ChatLayout() {
       >
         <ChatHeader
           onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
+          userId={user?.id}
         />
 
         <div className="min-h-0 flex-1">

@@ -37,7 +37,7 @@ export default function MessageBubble({
   if (isUser) {
     return (
       <div className="mb-6 flex justify-end">
-        <div className="max-w-[75%] rounded-3xl rounded-br-md bg-cyan-600 px-5 py-4 text-white shadow-sm">
+        <div className="max-w-[75%] rounded-2xl bg-slate-100 px-5 py-4 text-slate-800">
           <p className="whitespace-pre-wrap leading-7">
             {message.content}
           </p>

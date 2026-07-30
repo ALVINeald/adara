@@ -1,7 +1,7 @@
 "use client";
 
 import { KeyboardEvent, useRef, useState } from "react";
-import { SendHorizontal, Square } from "lucide-react";
+import { Mic, Plus, Sparkles, SendHorizontal, Square } from "lucide-react";
 
 interface ChatInputProps {
   onSend: (message: string) => void;
@@ -57,7 +57,16 @@ export default function ChatInput({
   }
 
   return (
-    <div className="flex items-end gap-4">
+    <div className="flex items-end gap-2">
+
+      {/* Visual only -- no file-attachment backend exists yet. */}
+      <button
+        type="button"
+        title="Attach (not yet available)"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100"
+      >
+        <Plus className="h-5 w-5" />
+      </button>
 
       <textarea
         ref={textareaRef}
@@ -73,12 +82,33 @@ export default function ChatInput({
         style={{ maxHeight: `${MAX_HEIGHT_PX}px` }}
       />
 
+      {/* Visual only -- no dedicated "smart suggestion" feature
+          behind this yet. */}
+      <button
+        type="button"
+        title="Suggestions (not yet available)"
+        className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 sm:flex"
+      >
+        <Sparkles className="h-4 w-4" />
+      </button>
+
+      {/* Visual only -- real speech-to-text via the browser's Speech
+          API is genuinely buildable without backend work, just not
+          wired up in this pass. */}
+      <button
+        type="button"
+        title="Voice input (not yet available)"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100"
+      >
+        <Mic className="h-4 w-4" />
+      </button>
+
       {isGenerating ? (
         <button
           type="button"
           onClick={onStop}
           title="Stop generating"
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-slate-800 text-white transition hover:bg-slate-900"
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-slate-800 text-white transition hover:bg-slate-900"
         >
           <Square className="h-4 w-4 fill-current" />
         </button>
@@ -87,7 +117,7 @@ export default function ChatInput({
           type="button"
           onClick={send}
           disabled={!message.trim()}
-          className="flex h-14 w-14 items-center justify-center rounded-full bg-cyan-600 text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
+          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-cyan-600 text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
         >
           <SendHorizontal className="h-5 w-5" />
         </button>
