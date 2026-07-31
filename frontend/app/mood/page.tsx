@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { PenLine } from "lucide-react";
+import { Cloud, PenLine } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useMoodEntries } from "@/hooks/useMoodEntries";
@@ -68,15 +68,18 @@ export default function MoodPage() {
 
   return (
     <AppShell>
-    <main className="min-h-screen bg-[linear-gradient(160deg,#f0fbff_0%,#e8fbf5_100%)] p-6 md:p-10">
+    <main className="min-h-screen bg-[linear-gradient(160deg,#f8f6ff_0%,#f3edff_100%)] p-6 md:p-10">
       <div className="mx-auto max-w-6xl">
 
         {/* Top bar */}
         <div className="mb-8 flex items-start justify-between gap-4">
           <div>
-            <p className="text-sm text-slate-500">{getTimeOfDayGreeting()}</p>
-            <h1 className="text-2xl font-bold text-slate-900 md:text-3xl">
+            <p className="text-xs font-semibold uppercase tracking-[0.12em] text-violet-500">
+              {getTimeOfDayGreeting()}
+            </p>
+            <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl">
               {firstName}
+              <Cloud className="h-6 w-6 text-slate-300" aria-hidden="true" />
             </h1>
             <p className="mt-1 text-slate-500">How are you feeling today?</p>
           </div>
@@ -94,7 +97,7 @@ export default function MoodPage() {
 
             <button
               onClick={() => router.push("/settings")}
-              className="flex h-10 w-10 items-center justify-center rounded-full bg-cyan-600 text-sm font-semibold text-white"
+              className="flex h-10 w-10 items-center justify-center rounded-full bg-violet-600 text-sm font-semibold text-white"
             >
               {firstName.charAt(0).toUpperCase()}
             </button>

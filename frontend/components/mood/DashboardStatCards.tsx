@@ -72,7 +72,7 @@ export default function DashboardStatCards({
       <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
         <p className="text-sm font-medium text-slate-500">Current Streak</p>
         <div className="mt-2 flex items-end justify-between">
-          <p className="text-3xl font-bold text-slate-900">
+          <p className="text-3xl font-extrabold tabular-nums tracking-tight text-slate-900">
             {streak} <span className="text-lg font-medium text-slate-400">days</span>
           </p>
           <div className="flex h-11 w-11 items-center justify-center rounded-full bg-orange-50">
