@@ -38,12 +38,12 @@ export default function MobileBottomTabs() {
               >
                 <Icon
                   className={`h-5 w-5 ${
-                    active ? "text-cyan-600" : "text-slate-400"
+                    active ? "text-violet-600" : "text-slate-400"
                   }`}
                 />
                 <span
                   className={`text-[10px] font-medium ${
-                    active ? "text-cyan-600" : "text-slate-400"
+                    active ? "text-violet-600" : "text-slate-400"
                   }`}
                 >
                   {item.label}
@@ -96,7 +96,7 @@ export default function MobileBottomTabs() {
                     }}
                     className="flex items-center gap-3 rounded-xl px-3 py-3 text-left hover:bg-slate-50"
                   >
-                    <Icon className="h-5 w-5 text-cyan-600" />
+                    <Icon className="h-5 w-5 text-violet-600" />
                     <span className="text-sm font-medium text-slate-800">
                       {item.label}
                     </span>

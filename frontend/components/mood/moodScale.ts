@@ -22,16 +22,38 @@ export function getMoodOption(level: number): MoodOption | undefined {
 export function getMoodColorClass(level?: number): string {
   switch (level) {
     case 1:
-      return "bg-cyan-200";
+      return "bg-violet-200";
     case 2:
-      return "bg-cyan-300";
+      return "bg-violet-300";
     case 3:
-      return "bg-cyan-400";
+      return "bg-violet-400";
     case 4:
-      return "bg-cyan-500";
+      return "bg-violet-500";
     case 5:
-      return "bg-cyan-600";
+      return "bg-violet-600";
     default:
       return "bg-slate-100";
+  }
+}
+
+// Same non-alarming-color principle as getMoodColorClass above, as a
+// border color for the story ring instead of a background fill, and
+// in violet to match the rest of the theme pass. Kept as its own
+// function rather than repurposing getMoodColorClass so the
+// heatmap's already-working behavior isn't touched.
+export function getMoodRingColorClass(level?: number): string {
+  switch (level) {
+    case 1:
+      return "border-violet-200";
+    case 2:
+      return "border-violet-300";
+    case 3:
+      return "border-violet-400";
+    case 4:
+      return "border-violet-500";
+    case 5:
+      return "border-violet-600";
+    default:
+      return "border-slate-200 border-dashed";
   }
 }

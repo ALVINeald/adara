@@ -90,7 +90,7 @@ export default function MoodHeatmap({
                       : getMoodColorClass(day.entry?.moodLevel)
                   } ${
                     !isFuture
-                      ? "cursor-pointer hover:ring-2 hover:ring-cyan-300"
+                      ? "cursor-pointer hover:ring-2 hover:ring-violet-300"
                       : ""
                   }`}
                 />
