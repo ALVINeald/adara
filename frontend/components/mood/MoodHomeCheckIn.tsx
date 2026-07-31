@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Sparkles } from "lucide-react";
 
 import { MOOD_SCALE } from "./moodScale";
+import MoodFaceIcon from "./MoodFaceIcon";
 import { getTimeOfDayPhrase } from "./greeting";
 
 interface MoodHomeCheckInProps {
@@ -54,8 +55,8 @@ export default function MoodHomeCheckIn({
     <div className="flex flex-col items-center gap-4 rounded-[28px] bg-white p-8 text-center shadow-[0_20px_60px_rgba(15,118,110,0.08)]">
 
       <div className="flex items-center gap-2">
-        <Sparkles className="h-4 w-4 text-cyan-600" />
-        <span className="text-xs font-semibold tracking-wide text-cyan-700">
+        <Sparkles className="h-4 w-4 text-violet-600" />
+        <span className="text-xs font-semibold tracking-wide text-violet-700">
           ADARA
         </span>
       </div>
@@ -74,13 +75,16 @@ export default function MoodHomeCheckIn({
               type="button"
               onClick={() => handleSelect(option.level)}
               title={option.label}
-              className={`flex items-center justify-center rounded-2xl transition ${
+              className={`flex items-center justify-center rounded-2xl transition-all duration-200 ${
                 isSelected
-                  ? "h-14 w-14 bg-cyan-600 text-2xl shadow-lg shadow-cyan-600/30"
-                  : "h-11 w-11 bg-slate-100 text-xl hover:bg-cyan-50"
+                  ? "h-14 w-14 scale-110 bg-violet-600 shadow-lg shadow-violet-600/30"
+                  : "h-11 w-11 bg-slate-100 hover:scale-105 hover:bg-violet-50"
               }`}
             >
-              {option.emoji}
+              <MoodFaceIcon
+                level={option.level}
+                className={isSelected ? "h-9 w-9" : "h-7 w-7"}
+              />
             </button>
           );
         })}
@@ -94,13 +98,13 @@ export default function MoodHomeCheckIn({
             onKeyDown={handleNoteKeyDown}
             placeholder="Want to tell me more? Totally optional."
             rows={2}
-            className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
+            className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-violet-500 focus:ring-2 focus:ring-violet-100"
           />
           <button
             type="button"
             onClick={handleSave}
             disabled={saving}
-            className="mt-3 w-full rounded-xl bg-cyan-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-cyan-700 disabled:opacity-50"
+            className="mt-3 w-full rounded-xl bg-violet-600 px-5 py-3 text-sm font-medium text-white transition hover:bg-violet-700 disabled:opacity-50"
           >
             {saving ? "Saving..." : "Save check-in"}
           </button>

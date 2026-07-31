@@ -1,7 +1,8 @@
 "use client";
 
 import type { MoodEntry } from "@/hooks/useMoodEntries";
-import { getMoodOption } from "./moodScale";
+import { getMoodRingColorClass } from "./moodScale";
+import MoodFaceIcon from "./MoodFaceIcon";
 
 interface MoodStoryRingProps {
   entries: MoodEntry[];
@@ -37,42 +38,43 @@ export default function MoodStoryRing({
   );
 
   return (
-    <div className="flex gap-3 overflow-x-auto pb-1">
+    <div className="flex gap-4 overflow-x-auto pb-1">
       {days.map((daysAgo) => {
         const dateKey = dateKeyDaysAgo(daysAgo);
         const entry = entryByDate.get(dateKey);
         const isToday = daysAgo === 0;
-        const moodOption = entry
-          ? getMoodOption(entry.moodLevel)
-          : undefined;
 
         return (
           <div
             key={dateKey}
-            className="flex flex-col items-center gap-1"
+            className="flex flex-col items-center gap-1.5"
           >
             {isToday && !entry ? (
-              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-cyan-600 to-cyan-400 p-[2px]">
-                <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-lg font-medium text-cyan-600">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-violet-600 to-fuchsia-400 p-[2.5px] shadow-[0_0_0_4px_rgba(124,58,237,0.12)]">
+                <div className="flex h-full w-full items-center justify-center rounded-full bg-white text-2xl font-medium text-violet-600">
                   +
                 </div>
               </div>
             ) : (
               <div
-                className={`flex h-12 w-12 items-center justify-center rounded-full text-lg ${
-                  entry ? "bg-cyan-100" : "bg-slate-100"
-                }`}
+                className={`flex h-14 w-14 items-center justify-center overflow-hidden rounded-full border-[2.5px] bg-white ${getMoodRingColorClass(
+                  entry?.moodLevel
+                )} ${isToday ? "shadow-[0_0_0_4px_rgba(124,58,237,0.12)]" : ""}`}
               >
-                {moodOption ? moodOption.emoji : ""}
+                {entry ? (
+                  <MoodFaceIcon level={entry.moodLevel} className="h-9 w-9" />
+                ) : null}
               </div>
             )}
-            <span
-              className={`text-[10px] font-medium ${
-                isToday ? "text-cyan-700" : "text-slate-400"
-              }`}
-            >
-              {weekdayLabel(daysAgo)}
-            </span>
+            {isToday ? (
+              <span className="rounded-full bg-violet-600 px-2.5 py-0.5 text-[10px] font-semibold text-white">
+                Today
+              </span>
+            ) : (
+              <span className="text-[10px] font-medium text-slate-400">
+                {weekdayLabel(daysAgo)}
+              </span>
+            )}
           </div>
         );
       })}
