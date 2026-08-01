@@ -18,6 +18,7 @@ import { calculateStreak } from "@/components/mood/streak";
 import { calculateMoodTrend } from "@/components/mood/moodTrend";
 import { getTimeOfDayGreeting } from "@/components/mood/greeting";
 import NotificationBell from "@/components/notifications/NotificationBell";
+import CompanionSlideOver from "@/components/companion/CompanionSlideOver";
 import AppShell from "@/components/navigation/AppShell";
 
 function todayDateKey(): string {
@@ -41,6 +42,7 @@ export default function MoodPage() {
   );
 
   const [firstName, setFirstName] = useState("there");
+  const [companionOpen, setCompanionOpen] = useState(false);
 
   useEffect(() => {
     if (!user?.id) return;
@@ -108,7 +110,7 @@ export default function MoodPage() {
           <MoodStoryRing entries={entries} />
         </div>
 
-        <CheckInPromptCard />
+        <CheckInPromptCard onOpenCompanion={() => setCompanionOpen(true)} />
 
         <div className="mb-6">
           <MoodHomeCheckIn
@@ -132,6 +134,11 @@ export default function MoodPage() {
         </div>
 
       </div>
+
+      <CompanionSlideOver
+        isOpen={companionOpen}
+        onClose={() => setCompanionOpen(false)}
+      />
     </main>
     </AppShell>
   );

@@ -1,11 +1,17 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
-import { ArrowRight, Sparkles } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
-export default function CheckInPromptCard() {
-  const router = useRouter();
+import GhostMascot from "./GhostMascot";
+
+interface CheckInPromptCardProps {
+  onOpenCompanion: () => void;
+}
+
+export default function CheckInPromptCard({
+  onOpenCompanion,
+}: CheckInPromptCardProps) {
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;
@@ -27,7 +33,7 @@ export default function CheckInPromptCard() {
 
         <div className="mt-6 flex items-center gap-5">
           <button
-            onClick={() => router.push("/chat")}
+            onClick={onOpenCompanion}
             className="rounded-full bg-violet-600 px-6 py-3 text-sm font-semibold text-white transition hover:bg-violet-700"
           >
             Let&apos;s Talk
@@ -43,10 +49,10 @@ export default function CheckInPromptCard() {
         </div>
       </div>
 
-      {/* Standing in for the mockup's custom ghost illustration --
-          didn't want to fake a bespoke asset that doesn't exist. */}
-      <div className="hidden h-36 w-36 shrink-0 items-center justify-center rounded-full bg-white/60 md:flex">
-        <Sparkles className="h-14 w-14 text-violet-400" />
+      {/* Custom-built illustration -- not the mockup's exact bespoke
+          asset, but an actual character now instead of a generic icon. */}
+      <div className="hidden shrink-0 items-center justify-center md:flex">
+        <GhostMascot />
       </div>
 
     </div>
