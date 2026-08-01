@@ -33,6 +33,7 @@ export default function DesktopSidebar({
 
   const { user } = useAuth();
   const [firstName, setFirstName] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
     if (!user?.id) return;
@@ -44,6 +45,29 @@ export default function DesktopSidebar({
       }
     });
   }, [user?.id]);
+
+  // Flattened so Wellness's sub-items (Breathing, Sleep, Goals, etc.)
+  // are searchable too, not just the 9 top-level items.
+  const searchableItems = NAV_ITEMS.flatMap((item) => [
+    { label: item.label, href: item.href, icon: item.icon },
+    ...(item.subItems ?? []).map((sub) => ({
+      label: sub.label,
+      href: sub.href,
+      icon: item.icon,
+    })),
+  ]);
+
+  const searchResults =
+    searchQuery.trim().length === 0
+      ? []
+      : searchableItems.filter((item) =>
+          item.label.toLowerCase().includes(searchQuery.trim().toLowerCase())
+        );
+
+  function goToSearchResult(href: string) {
+    setSearchQuery("");
+    router.push(href);
+  }
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + "/");
@@ -99,15 +123,44 @@ export default function DesktopSidebar({
 
       </div>
 
-      {/* Search -- visual only for now, not wired to a real search
-          feature. Flagging rather than faking functionality behind it. */}
+      {/* Search -- filters real nav destinations (including Wellness
+          sub-items), not decorative. */}
 
       {!collapsed && (
-        <div className="px-4 pb-3">
-          <div className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm text-slate-400">
-            <Search className="h-4 w-4" />
-            <span>Search</span>
+        <div className="relative px-4 pb-3">
+          <div className="flex items-center gap-2 rounded-xl border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm focus-within:border-violet-500">
+            <Search className="h-4 w-4 shrink-0 text-slate-400" />
+            <input
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search"
+              className="w-full bg-transparent text-slate-200 outline-none placeholder:text-slate-400"
+            />
           </div>
+
+          {searchQuery.trim().length > 0 && (
+            <div className="absolute left-4 right-4 top-full z-50 mt-1 max-h-64 overflow-y-auto rounded-xl border border-slate-700 bg-slate-800 py-1 shadow-xl">
+              {searchResults.length === 0 ? (
+                <p className="px-3 py-2 text-sm text-slate-400">
+                  No matches for &quot;{searchQuery}&quot;
+                </p>
+              ) : (
+                searchResults.map((result) => {
+                  const ResultIcon = result.icon;
+                  return (
+                    <button
+                      key={result.href + result.label}
+                      onClick={() => goToSearchResult(result.href)}
+                      className="flex w-full items-center gap-2.5 px-3 py-2 text-left text-sm text-slate-200 transition hover:bg-white/5"
+                    >
+                      <ResultIcon className="h-4 w-4 shrink-0 text-slate-400" />
+                      {result.label}
+                    </button>
+                  );
+                })
+              )}
+            </div>
+          )}
         </div>
       )}
 
