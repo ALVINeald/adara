@@ -48,7 +48,7 @@ export default function ContinueJourneyRow() {
   return (
     <div className="mb-6">
 
-      <h2 className="mb-4 text-lg font-semibold text-slate-900">
+      <h2 className="mb-4 text-lg font-bold tracking-tight text-slate-900">
         Continue Your Journey
       </h2>
 
@@ -60,7 +60,7 @@ export default function ContinueJourneyRow() {
             <button
               key={item.key}
               onClick={() => router.push(item.href)}
-              className="rounded-2xl border border-slate-100 bg-white p-5 text-left transition hover:border-slate-200 hover:shadow-sm"
+              className="rounded-2xl border border-slate-100 bg-white p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-100 hover:shadow-md"
             >
               <div
                 className={`flex h-10 w-10 items-center justify-center rounded-xl ${item.bg}`}

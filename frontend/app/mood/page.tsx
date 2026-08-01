@@ -124,8 +124,8 @@ export default function MoodPage() {
 
         <ContinueJourneyRow />
 
-        <div className="rounded-[32px] border border-white/70 bg-white/80 p-6 shadow-[0_25px_80px_rgba(15,118,110,0.12)] backdrop-blur-xl">
-          <h2 className="mb-4 text-lg font-semibold text-slate-900">
+        <div className="rounded-[32px] border border-white/70 bg-white/80 p-6 shadow-[0_25px_80px_rgba(124,58,237,0.10)] backdrop-blur-xl">
+          <h2 className="mb-4 text-lg font-bold tracking-tight text-slate-900">
             Your History
           </h2>
           <MoodHeatmap entries={entries} />
