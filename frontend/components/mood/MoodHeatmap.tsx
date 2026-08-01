@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 
 import { getMoodColorClass, getMoodOption } from "./moodScale";
+import MoodFaceIcon from "./MoodFaceIcon";
 import type { MoodEntry } from "@/hooks/useMoodEntries";
 
 interface MoodHeatmapProps {
@@ -14,6 +15,8 @@ interface DayCell {
   date: string; // YYYY-MM-DD
   entry?: MoodEntry;
 }
+
+const DAY_ROW_LABELS = ["", "Mon", "", "Wed", "", "Fri", ""];
 
 function formatDateKey(date: Date): string {
   return date.toISOString().slice(0, 10);
@@ -58,6 +61,29 @@ function buildGrid(entries: MoodEntry[], weeksToShow: number): DayCell[][] {
   return weeks;
 }
 
+// Which weeks (by index) start a new month, and that month's short
+// label -- GitHub shows a label only where a month genuinely begins
+// within the visible grid, not on every column.
+function getMonthLabels(weeks: DayCell[][]): { weekIndex: number; label: string }[] {
+  const labels: { weekIndex: number; label: string }[] = [];
+  let lastMonth = -1;
+
+  weeks.forEach((week, weekIndex) => {
+    const firstDayOfWeek = new Date(week[0].date + "T00:00:00");
+    const month = firstDayOfWeek.getMonth();
+
+    if (month !== lastMonth) {
+      labels.push({
+        weekIndex,
+        label: firstDayOfWeek.toLocaleDateString([], { month: "short" }),
+      });
+      lastMonth = month;
+    }
+  });
+
+  return labels;
+}
+
 export default function MoodHeatmap({
   entries,
   weeksToShow = 26,
@@ -67,37 +93,94 @@ export default function MoodHeatmap({
     [entries, weeksToShow]
   );
 
+  const monthLabels = useMemo(() => getMonthLabels(weeks), [weeks]);
+
   const [hovered, setHovered] = useState<DayCell | null>(null);
 
   const today = formatDateKey(new Date());
 
+  const checkInCount = useMemo(() => {
+    const visibleDates = new Set(
+      weeks.flat().map((day) => day.date)
+    );
+    return entries.filter((entry) => visibleDates.has(entry.entryDate)).length;
+  }, [weeks, entries]);
+
   return (
     <div className="relative">
-      <div className="flex gap-1 overflow-x-auto pb-2">
-        {weeks.map((week, weekIndex) => (
-          <div key={weekIndex} className="flex flex-col gap-1">
-            {week.map((day) => {
-              const isFuture = day.date > today;
 
-              return (
-                <div
-                  key={day.date}
-                  onMouseEnter={() => !isFuture && setHovered(day)}
-                  onMouseLeave={() => setHovered(null)}
-                  className={`h-4 w-4 rounded-sm transition ${
-                    isFuture
-                      ? "bg-transparent"
-                      : getMoodColorClass(day.entry?.moodLevel)
-                  } ${
-                    !isFuture
-                      ? "cursor-pointer hover:ring-2 hover:ring-violet-300"
-                      : ""
-                  }`}
-                />
-              );
-            })}
+      <p className="mb-3 text-sm text-slate-500">
+        <span className="font-semibold text-slate-700">{checkInCount}</span>{" "}
+        check-ins in the last {weeksToShow} weeks
+      </p>
+
+      <div className="flex gap-2 overflow-x-auto pb-2">
+
+        {/* Day-of-week row labels */}
+        <div className="flex flex-col gap-1 pt-5">
+          {DAY_ROW_LABELS.map((label, i) => (
+            <span
+              key={i}
+              className="h-4 text-[10px] leading-4 text-slate-400"
+            >
+              {label}
+            </span>
+          ))}
+        </div>
+
+        <div>
+          {/* Month labels */}
+          <div className="relative mb-1 h-4">
+            {monthLabels.map(({ weekIndex, label }) => (
+              <span
+                key={weekIndex + label}
+                className="absolute text-[10px] text-slate-400"
+                style={{ left: `${weekIndex * 20}px` }}
+              >
+                {label}
+              </span>
+            ))}
           </div>
+
+          <div className="flex gap-1">
+            {weeks.map((week, weekIndex) => (
+              <div key={weekIndex} className="flex flex-col gap-1">
+                {week.map((day) => {
+                  const isFuture = day.date > today;
+
+                  return (
+                    <div
+                      key={day.date}
+                      onMouseEnter={() => !isFuture && setHovered(day)}
+                      onMouseLeave={() => setHovered(null)}
+                      className={`h-4 w-4 rounded-sm transition ${
+                        isFuture
+                          ? "bg-transparent"
+                          : getMoodColorClass(day.entry?.moodLevel)
+                      } ${
+                        !isFuture
+                          ? "cursor-pointer hover:ring-2 hover:ring-violet-300"
+                          : ""
+                      }`}
+                    />
+                  );
+                })}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Legend */}
+      <div className="mt-3 flex items-center justify-end gap-1.5 text-[10px] text-slate-400">
+        Less
+        {[undefined, 1, 2, 3, 4, 5].map((level, i) => (
+          <span
+            key={i}
+            className={`h-3 w-3 rounded-sm ${getMoodColorClass(level)}`}
+          />
         ))}
+        More
       </div>
 
       {hovered && (
@@ -111,10 +194,13 @@ export default function MoodHeatmap({
           </p>
           {hovered.entry ? (
             <>
-              <p>
-                {getMoodOption(hovered.entry.moodLevel)?.emoji}{" "}
+              <div className="flex items-center gap-1.5">
+                <MoodFaceIcon
+                  level={hovered.entry.moodLevel}
+                  className="h-4 w-4"
+                />
                 {getMoodOption(hovered.entry.moodLevel)?.label}
-              </p>
+              </div>
               {hovered.entry.note && (
                 <p className="mt-1 max-w-[200px] text-slate-300">
                   {hovered.entry.note}
