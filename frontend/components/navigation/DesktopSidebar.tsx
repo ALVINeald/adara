@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   ChevronDown,
@@ -13,6 +13,8 @@ import {
 
 import { NAV_ITEMS } from "./navItems";
 import { useOptionalChatSidebar } from "@/lib/chatSidebarContext";
+import { useAuth } from "@/hooks/useAuth";
+import { getProfileNamesByIds } from "@/lib/profiles";
 
 interface DesktopSidebarProps {
   collapsed: boolean;
@@ -28,6 +30,20 @@ export default function DesktopSidebar({
   const [expandedKey, setExpandedKey] = useState<string | null>(null);
   const chatSidebar = useOptionalChatSidebar();
   const onCompanionPage = pathname === "/chat";
+
+  const { user } = useAuth();
+  const [firstName, setFirstName] = useState("");
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    getProfileNamesByIds([user.id]).then(({ data }) => {
+      const fullName = data?.[0]?.full_name;
+      if (fullName) {
+        setFirstName(fullName.split(" ")[0]);
+      }
+    });
+  }, [user?.id]);
 
   function isActive(href: string) {
     return pathname === href || pathname.startsWith(href + "/");
@@ -206,9 +222,9 @@ export default function DesktopSidebar({
 
       {!collapsed && (
         <div className="mx-3 mb-3 rounded-2xl bg-gradient-to-br from-violet-600/20 to-violet-600/5 p-4">
-          <p className="text-sm text-slate-300">
-            You&apos;re doing great, Alvin. Keep nurturing your mind.{" "}
-            <span aria-hidden="true">✨</span>
+          <p className="flex items-center gap-1 text-sm text-slate-300">
+            You&apos;re doing great, {firstName || "there"}. Keep nurturing your mind.
+            <Sparkles className="h-3.5 w-3.5 text-violet-300" aria-hidden="true" />
           </p>
           <button
             onClick={() => router.push("/mood")}
@@ -230,13 +246,13 @@ export default function DesktopSidebar({
           }`}
         >
           <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-500/20 text-sm font-semibold text-violet-300">
-            A
+            {firstName ? firstName.charAt(0).toUpperCase() : "?"}
           </div>
 
           {!collapsed && (
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-medium text-white">
-                Alvin
+                {firstName || "..."}
               </p>
             </div>
           )}
