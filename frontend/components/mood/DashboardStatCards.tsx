@@ -69,7 +69,7 @@ export default function DashboardStatCards({
   return (
     <div className="mb-6 grid gap-4 md:grid-cols-3">
 
-      <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+      <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
         <p className="text-sm font-medium text-slate-500">Current Streak</p>
         <div className="mt-2 flex items-end justify-between">
           <p className="text-3xl font-extrabold tabular-nums tracking-tight text-slate-900">
@@ -90,7 +90,7 @@ export default function DashboardStatCards({
         </div>
       </div>
 
-      <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+      <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
         <div className="flex items-center justify-between">
           <p className="text-sm font-medium text-slate-500">Mood Trend</p>
           {trend.percentChange !== null && (
@@ -122,7 +122,7 @@ export default function DashboardStatCards({
           yet, same reasoning as the Companion header's Focus chip.
           The arrow does something real though: it opens Journal so
           you can actually write about it, rather than going nowhere. */}
-      <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm">
+      <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
         <div className="flex items-start justify-between">
           <div>
             <p className="text-sm font-medium text-slate-500">Today&apos;s Focus</p>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Sparkles } from "lucide-react";
+import { Flame, Sparkles } from "lucide-react";
 
 import { MOOD_SCALE } from "./moodScale";
 import MoodFaceIcon from "./MoodFaceIcon";
@@ -117,7 +117,7 @@ export default function MoodHomeCheckIn({
 
       {streak > 0 && (
         <div className="flex items-center gap-1.5 rounded-full bg-amber-100 px-3 py-1.5">
-          <span className="text-sm">🔥</span>
+          <Flame className="h-3.5 w-3.5 text-amber-600" />
           <span className="text-xs font-semibold text-amber-800">
             {streak} day{streak === 1 ? "" : "s"} streak
           </span>

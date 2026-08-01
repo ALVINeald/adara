@@ -8,6 +8,7 @@ import {
   Trash2,
   MoreHorizontal,
   PanelLeft,
+  Heart,
 } from "lucide-react";
 
 import type { Conversation } from "./types";
@@ -103,7 +104,7 @@ export default function ChatSidebar({
         <button
           onClick={onNewConversation}
           title="New conversation"
-          className="flex h-10 w-10 items-center justify-center rounded-xl bg-cyan-600 text-white transition hover:bg-cyan-700"
+          className="flex h-10 w-10 items-center justify-center rounded-xl bg-violet-600 text-white transition hover:bg-violet-700"
         >
           <Plus className="h-5 w-5" />
         </button>
@@ -135,7 +136,7 @@ export default function ChatSidebar({
             <button
               onClick={onNewConversation}
               title="New conversation"
-              className="flex h-9 w-9 items-center justify-center rounded-xl bg-cyan-600 text-white transition hover:bg-cyan-700"
+              className="flex h-9 w-9 items-center justify-center rounded-xl bg-violet-600 text-white transition hover:bg-violet-700"
             >
               <Plus className="h-5 w-5" />
             </button>
@@ -188,7 +189,7 @@ export default function ChatSidebar({
               key={conversation.id}
               className={`relative mb-2 rounded-2xl p-3 transition ${
                 conversation.id === activeConversationId
-                  ? "border border-cyan-200 bg-cyan-50"
+                  ? "border border-violet-200 bg-violet-50"
                   : "border border-transparent hover:bg-slate-50"
               }`}
             >
@@ -214,7 +215,7 @@ export default function ChatSidebar({
                         saveRename(conversation.id);
                       }
                     }}
-                    className="w-full rounded-md border border-cyan-300 bg-white px-2 py-1 text-sm font-semibold outline-none"
+                    className="w-full rounded-md border border-violet-300 bg-white px-2 py-1 text-sm font-semibold outline-none"
                   />
                 ) : (
                   <div className="flex items-start justify-between gap-2">
@@ -242,7 +243,7 @@ export default function ChatSidebar({
                   <p
                     className={`mt-1 text-xs ${
                       conversation.id === activeConversationId
-                        ? "text-cyan-700"
+                        ? "text-violet-700"
                         : "text-slate-400"
                     }`}
                   >
@@ -286,7 +287,7 @@ export default function ChatSidebar({
 
         <div className="flex items-center gap-3">
 
-          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-600 font-semibold text-white">
+          <div className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 font-semibold text-white">
             {userName ? userName.charAt(0).toUpperCase() : "?"}
           </div>
 
@@ -296,8 +297,9 @@ export default function ChatSidebar({
               {userName || "..."}
             </p>
 
-            <p className="text-sm text-slate-500">
-              Your safe space to reflect, heal and grow.
+            <p className="flex items-center gap-1 text-sm text-slate-500">
+              Your safe space
+              <Heart className="h-3.5 w-3.5 fill-violet-400 text-violet-400" />
             </p>
 
           </div>
