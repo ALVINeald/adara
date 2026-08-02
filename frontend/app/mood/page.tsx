@@ -70,7 +70,11 @@ export default function MoodPage() {
 
   return (
     <AppShell>
-    <main className="min-h-screen bg-[linear-gradient(160deg,#f8f6ff_0%,#f3edff_100%)] p-6 md:p-10">
+    <main
+      className={`min-h-screen bg-[linear-gradient(160deg,#f8f6ff_0%,#f3edff_100%)] p-6 transition-[padding] duration-300 md:p-10 ${
+        companionOpen ? "md:pr-[472px]" : ""
+      }`}
+    >
       <div className="mx-auto max-w-6xl">
 
         {/* Top bar */}

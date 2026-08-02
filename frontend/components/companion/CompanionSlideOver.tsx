@@ -32,19 +32,11 @@ export default function CompanionSlideOver({
   } = useCompanionChat();
 
   return (
-    <>
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-[60] bg-black/20"
-          onClick={onClose}
-        />
-      )}
-
-      <div
-        className={`fixed inset-y-0 right-0 z-[65] flex w-full flex-col bg-white shadow-2xl transition-transform duration-300 sm:w-[440px] ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        }`}
-      >
+    <div
+      className={`fixed inset-y-0 right-0 z-[65] flex w-full flex-col border-l border-slate-200 bg-white shadow-2xl transition-transform duration-300 md:w-[440px] ${
+        isOpen ? "translate-x-0" : "translate-x-full"
+      }`}
+    >
 
         {/* Header */}
         <div className="flex items-center justify-between border-b border-slate-200 px-5 py-4">
@@ -128,6 +120,5 @@ export default function CompanionSlideOver({
         </div>
 
       </div>
-    </>
   );
 }
