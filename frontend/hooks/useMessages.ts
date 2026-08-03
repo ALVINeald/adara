@@ -16,6 +16,7 @@ function mapMessages(data: any[]): ChatMessage[] {
       hour: "2-digit",
       minute: "2-digit",
     }),
+    createdAt: message.created_at,
   }));
 }
 

@@ -259,6 +259,7 @@ export default function ChatLayout() {
           sender: "assistant" as const,
           content: streamingReply,
           timestamp: formatNow(),
+          createdAt: new Date().toISOString(),
         },
       ]
     : messages;
@@ -299,6 +300,7 @@ export default function ChatLayout() {
         <ChatHeader
           onToggleSidebar={() => setIsSidebarOpen((prev) => !prev)}
           userId={user?.id}
+          messages={displayMessages}
         />
 
         <div className="min-h-0 flex-1">
@@ -332,7 +334,7 @@ export default function ChatLayout() {
           )}
         </div>
 
-        <div className="mx-4 mb-[calc(6rem+env(safe-area-inset-bottom))] rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-lg backdrop-blur-xl transition focus-within:border-cyan-300 focus-within:ring-2 focus-within:ring-cyan-100 md:mx-auto md:mb-6 md:max-w-3xl">
+        <div className="mx-4 mb-[calc(6rem+env(safe-area-inset-bottom))] rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-lg backdrop-blur-xl transition focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-100 md:mx-auto md:mb-6 md:max-w-3xl">
           <ChatInput
             onSend={sendMessage}
             isGenerating={isTyping || streamingReply !== null}

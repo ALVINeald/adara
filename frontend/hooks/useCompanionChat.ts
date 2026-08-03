@@ -230,6 +230,7 @@ export function useCompanionChat() {
           sender: "assistant" as const,
           content: streamingReply,
           timestamp: formatNow(),
+          createdAt: new Date().toISOString(),
         },
       ]
     : messages;

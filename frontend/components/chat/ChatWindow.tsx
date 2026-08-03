@@ -16,6 +16,31 @@ interface ChatWindowProps {
   onSelectPrompt: (prompt: string) => void;
 }
 
+function dayKey(createdAt?: string): string {
+  const date = createdAt ? new Date(createdAt) : new Date();
+  return date.toISOString().slice(0, 10);
+}
+
+function dividerLabel(key: string): string {
+  const todayKey = new Date().toISOString().slice(0, 10);
+
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  const yesterdayKey = yesterday.toISOString().slice(0, 10);
+
+  if (key === todayKey) return "Today";
+  if (key === yesterdayKey) return "Yesterday";
+
+  return new Date(key + "T00:00:00").toLocaleDateString([], {
+    month: "long",
+    day: "numeric",
+    year:
+      new Date(key).getFullYear() === new Date().getFullYear()
+        ? undefined
+        : "numeric",
+  });
+}
+
 export default function ChatWindow({
   messages,
   isTyping,
@@ -60,8 +85,8 @@ export default function ChatWindow({
   if (isEmpty) {
     return (
       <div className="flex h-full flex-col items-center justify-center gap-6 px-6">
-        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-cyan-50">
-          <Sparkles className="h-6 w-6 text-cyan-600" />
+        <div className="flex h-12 w-12 items-center justify-center rounded-full bg-violet-50">
+          <Sparkles className="h-6 w-6 text-violet-600" />
         </div>
 
         <p className="text-center text-lg text-slate-500">
@@ -73,6 +98,8 @@ export default function ChatWindow({
     );
   }
 
+  let lastDayKey = "";
+
   return (
     <div className="relative h-full">
       <div
@@ -82,17 +109,31 @@ export default function ChatWindow({
       >
         <div className="mx-auto flex max-w-4xl flex-col">
 
-          {messages.map((message) => (
-            <MessageBubble
-              key={message.id}
-              message={message}
-              onRegenerate={
-                message.sender === "assistant"
-                  ? () => onRegenerate(message)
-                  : undefined
-              }
-            />
-          ))}
+          {messages.map((message) => {
+            const key = dayKey(message.createdAt);
+            const showDivider = key !== lastDayKey;
+            lastDayKey = key;
+
+            return (
+              <div key={message.id}>
+                {showDivider && (
+                  <div className="mb-6 flex justify-center">
+                    <span className="rounded-full border border-slate-200 bg-white px-4 py-1 text-xs font-medium text-slate-500">
+                      {dividerLabel(key)}
+                    </span>
+                  </div>
+                )}
+                <MessageBubble
+                  message={message}
+                  onRegenerate={
+                    message.sender === "assistant"
+                      ? () => onRegenerate(message)
+                      : undefined
+                  }
+                />
+              </div>
+            );
+          })}
 
           {isTyping && <TypingIndicator />}
 
