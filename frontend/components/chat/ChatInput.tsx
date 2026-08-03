@@ -63,7 +63,7 @@ export default function ChatInput({
       <button
         type="button"
         title="Attach (not yet available)"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100"
+        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-slate-100 text-slate-500 transition hover:bg-slate-200"
       >
         <Plus className="h-5 w-5" />
       </button>
@@ -82,46 +82,50 @@ export default function ChatInput({
         style={{ maxHeight: `${MAX_HEIGHT_PX}px` }}
       />
 
-      {/* Visual only -- no dedicated "smart suggestion" feature
-          behind this yet. */}
-      <button
-        type="button"
-        title="Suggestions (not yet available)"
-        className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100 sm:flex"
-      >
-        <Sparkles className="h-4 w-4" />
-      </button>
+      <div className="flex items-end gap-1.5">
 
-      {/* Visual only -- real speech-to-text via the browser's Speech
-          API is genuinely buildable without backend work, just not
-          wired up in this pass. */}
-      <button
-        type="button"
-        title="Voice input (not yet available)"
-        className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-slate-400 transition hover:bg-slate-100"
-      >
-        <Mic className="h-4 w-4" />
-      </button>
-
-      {isGenerating ? (
+        {/* Visual only -- no dedicated "smart suggestion" feature
+            behind this yet. */}
         <button
           type="button"
-          onClick={onStop}
-          title="Stop generating"
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-slate-800 text-white transition hover:bg-slate-900"
+          title="Suggestions (not yet available)"
+          className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50 sm:flex"
         >
-          <Square className="h-4 w-4 fill-current" />
+          <Sparkles className="h-4 w-4" />
         </button>
-      ) : (
+
+        {/* Visual only -- real speech-to-text via the browser's Speech
+            API is genuinely buildable without backend work, just not
+            wired up in this pass. */}
         <button
           type="button"
-          onClick={send}
-          disabled={!message.trim()}
-          className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-cyan-600 text-white transition hover:bg-cyan-700 disabled:cursor-not-allowed disabled:opacity-50"
+          title="Voice input (not yet available)"
+          className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:bg-slate-50"
         >
-          <SendHorizontal className="h-5 w-5" />
+          <Mic className="h-4 w-4" />
         </button>
-      )}
+
+        {isGenerating ? (
+          <button
+            type="button"
+            onClick={onStop}
+            title="Stop generating"
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-slate-800 text-white transition hover:bg-slate-900"
+          >
+            <Square className="h-4 w-4 fill-current" />
+          </button>
+        ) : (
+          <button
+            type="button"
+            onClick={send}
+            disabled={!message.trim()}
+            className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-violet-600 text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-50"
+          >
+            <SendHorizontal className="h-5 w-5" />
+          </button>
+        )}
+
+      </div>
 
     </div>
   );
