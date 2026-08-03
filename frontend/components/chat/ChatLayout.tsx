@@ -334,13 +334,17 @@ export default function ChatLayout() {
           )}
         </div>
 
-        <div className="mx-4 mb-[calc(6rem+env(safe-area-inset-bottom))] rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-lg backdrop-blur-xl transition focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-100 md:mx-auto md:mb-6 md:max-w-3xl">
+        <div className="mx-4 mb-[calc(6rem+env(safe-area-inset-bottom))] rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-lg backdrop-blur-xl transition focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-100 md:mx-auto md:mb-6 md:max-w-3xl">
           <ChatInput
             onSend={sendMessage}
             isGenerating={isTyping || streamingReply !== null}
             onStop={stopGenerating}
           />
         </div>
+
+        <p className="mx-auto mb-4 hidden max-w-3xl px-4 text-center text-xs text-slate-400 md:mb-6 md:block">
+          Adara can make mistakes. Consider checking important information.
+        </p>
       </section>
 
     </main>

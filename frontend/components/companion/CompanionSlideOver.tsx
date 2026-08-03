@@ -111,13 +111,17 @@ export default function CompanionSlideOver({
         )}
 
         {/* Composer */}
-        <div className="mx-3 mb-[calc(0.75rem+env(safe-area-inset-bottom))] rounded-2xl border border-slate-200 bg-white/90 p-3 shadow-lg transition focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-100">
+        <div className="mx-3 mb-[calc(0.75rem+env(safe-area-inset-bottom))] rounded-2xl border border-slate-200 bg-white/90 p-4 shadow-lg transition focus-within:border-violet-300 focus-within:ring-2 focus-within:ring-violet-100">
           <ChatInput
             onSend={sendMessage}
             isGenerating={isGenerating}
             onStop={stopGenerating}
           />
         </div>
+
+        <p className="mb-3 px-4 text-center text-xs text-slate-400">
+          Adara can make mistakes. Consider checking important information.
+        </p>
 
       </div>
   );
