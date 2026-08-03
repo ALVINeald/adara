@@ -36,11 +36,15 @@ export default function MessageBubble({
 
   if (isUser) {
     return (
-      <div className="mb-6 flex justify-end">
-        <div className="max-w-[75%] rounded-2xl bg-slate-100 px-5 py-4 text-slate-800">
+      <div className="mb-6 flex flex-col items-end">
+        <div className="max-w-[75%] text-right text-slate-900">
           <p className="whitespace-pre-wrap leading-7">
             {message.content}
           </p>
+        </div>
+        <div className="mt-1 flex items-center gap-1 text-xs text-slate-400">
+          {message.timestamp}
+          <Check className="h-3.5 w-3.5 text-violet-500" />
         </div>
       </div>
     );
@@ -50,7 +54,21 @@ export default function MessageBubble({
     <div className="group mb-8 flex justify-start">
       <div className="max-w-2xl">
 
-        <Sparkles className="mb-2 h-4 w-4 text-cyan-500" />
+        {!isStreaming && (
+          <div className="mb-2 flex items-center gap-2">
+            <Sparkles className="h-4 w-4 text-violet-500" />
+            <span className="text-sm font-semibold text-slate-900">
+              Adara
+            </span>
+            <span className="text-xs text-slate-400">
+              {message.timestamp}
+            </span>
+          </div>
+        )}
+
+        {isStreaming && (
+          <Sparkles className="mb-2 h-4 w-4 text-violet-500" />
+        )}
 
         <div className="text-[15px] leading-7 text-slate-800">
           <ReactMarkdown
@@ -82,7 +100,7 @@ export default function MessageBubble({
                   href={href}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-cyan-700 underline underline-offset-2 hover:text-cyan-800"
+                  className="text-violet-700 underline underline-offset-2 hover:text-violet-800"
                 >
                   {children}
                 </a>
@@ -113,7 +131,7 @@ export default function MessageBubble({
           </ReactMarkdown>
 
           {isStreaming && (
-            <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse rounded-sm bg-cyan-500 align-text-bottom" />
+            <span className="ml-0.5 inline-block h-4 w-1.5 animate-pulse rounded-sm bg-violet-500 align-text-bottom" />
           )}
         </div>
 
@@ -147,7 +165,7 @@ export default function MessageBubble({
               }
               title="Good response"
               className={`transition hover:text-slate-600 ${
-                feedback === "up" ? "text-cyan-600" : "text-slate-400"
+                feedback === "up" ? "text-violet-600" : "text-slate-400"
               }`}
             >
               <ThumbsUp className="h-3.5 w-3.5" />
