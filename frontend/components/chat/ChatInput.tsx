@@ -78,7 +78,7 @@ export default function ChatInput({
         }}
         onKeyDown={handleKeyDown}
         placeholder="Share what's on your mind..."
-        className="chat-composer-scroll min-h-[40px] flex-1 resize-none overflow-y-auto bg-transparent px-2 py-2 text-[15px] text-slate-900 outline-none placeholder:text-slate-400"
+        className="chat-composer-scroll min-h-[48px] flex-1 resize-none overflow-y-auto bg-transparent px-2 py-3 text-[15px] leading-6 text-slate-900 outline-none placeholder:text-slate-400"
         style={{ maxHeight: `${MAX_HEIGHT_PX}px` }}
       />
 
