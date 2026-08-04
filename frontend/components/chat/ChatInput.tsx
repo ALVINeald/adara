@@ -1,6 +1,6 @@
 "use client";
 
-import { KeyboardEvent, useRef, useState } from "react";
+import { KeyboardEvent, useEffect, useRef, useState } from "react";
 import { Mic, Plus, Sparkles, SendHorizontal, Square } from "lucide-react";
 
 interface ChatInputProps {
@@ -26,6 +26,10 @@ export default function ChatInput({
     textarea.style.height = "auto";
     textarea.style.height = `${Math.min(textarea.scrollHeight, MAX_HEIGHT_PX)}px`;
   }
+
+  useEffect(() => {
+    resizeTextarea();
+  }, []);
 
   function send() {
     if (isGenerating) return;
@@ -77,7 +81,7 @@ export default function ChatInput({
           resizeTextarea();
         }}
         onKeyDown={handleKeyDown}
-        placeholder="Share what's on your mind..."
+        placeholder="Message Adara..."
         className="chat-composer-scroll min-h-[48px] flex-1 resize-none overflow-y-auto bg-transparent px-2 py-3 text-[15px] leading-6 text-slate-900 outline-none placeholder:text-slate-400"
         style={{ maxHeight: `${MAX_HEIGHT_PX}px` }}
       />
