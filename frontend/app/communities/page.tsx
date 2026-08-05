@@ -2,11 +2,16 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Search } from "lucide-react";
+import { Search, Users } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useCommunities } from "@/hooks/useCommunities";
-import CommunityCard from "@/components/community/CommunityCard";
+import JoinedCommunityCard from "@/components/community/JoinedCommunityCard";
+import DiscoverCommunityCard from "@/components/community/DiscoverCommunityCard";
+import MembershipStatusCard from "@/components/community/MembershipStatusCard";
+import SuggestedCommunities from "@/components/community/SuggestedCommunities";
+import CommunityGuidelinesCard from "@/components/community/CommunityGuidelinesCard";
+import NotificationBell from "@/components/notifications/NotificationBell";
 import AppShell from "@/components/navigation/AppShell";
 
 export default function CommunitiesPage() {
@@ -19,13 +24,21 @@ export default function CommunitiesPage() {
     }
   }, [authLoading, user, router]);
 
-  const { communities, memberships, loading, join, leave, maxCommunities } =
-    useCommunities(user?.id);
+  const {
+    communities,
+    memberships,
+    memberCounts,
+    loading,
+    join,
+    maxCommunities,
+  } = useCommunities(user?.id);
 
   const [search, setSearch] = useState("");
   const [joinError, setJoinError] = useState<string | null>(null);
+  const [joiningId, setJoiningId] = useState<string | null>(null);
 
   const memberCommunityIds = new Set(memberships.map((m) => m.communityId));
+  const atLimit = memberships.length >= maxCommunities;
 
   const filtered = useMemo(() => {
     return communities.filter(
@@ -35,12 +48,17 @@ export default function CommunitiesPage() {
     );
   }, [communities, search]);
 
+  const joined = filtered.filter((c) => memberCommunityIds.has(c.id));
+  const discover = filtered.filter((c) => !memberCommunityIds.has(c.id));
+
   async function handleJoin(communityId: string) {
     setJoinError(null);
+    setJoiningId(communityId);
     const result = await join(communityId);
     if (result.error) {
       setJoinError(result.error);
     }
+    setJoiningId(null);
   }
 
   if (authLoading || loading) {
@@ -53,45 +71,147 @@ export default function CommunitiesPage() {
 
   return (
     <AppShell>
-    <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
-      <div className="mx-auto max-w-4xl">
-        <h1 className="mb-2 text-2xl font-bold text-slate-900">
-          Communities
-        </h1>
-        <p className="mb-6 text-sm text-slate-500">
-          Join up to {maxCommunities} communities of people who understand
-          what you're going through. ({memberships.length}/{maxCommunities}{" "}
-          joined)
-        </p>
+    <main className="min-h-screen bg-[linear-gradient(160deg,#f8f6ff_0%,#f3edff_100%)] p-6 md:p-10">
+      <div className="mx-auto max-w-7xl">
+
+        {/* Header */}
+        <div className="mb-8 flex flex-wrap items-start justify-between gap-4">
+          <div>
+            <h1 className="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900 md:text-3xl">
+              Community
+              <Users className="h-6 w-6 text-violet-500" />
+            </h1>
+            <p className="mt-1 text-slate-500">
+              Connect, share, and grow together.
+            </p>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm">
+              <Search className="h-4 w-4 text-slate-400" />
+              <input
+                type="text"
+                placeholder="Search communities..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                className="w-40 bg-transparent outline-none placeholder:text-slate-400 md:w-56"
+              />
+            </div>
+            <NotificationBell />
+          </div>
+        </div>
 
         {joinError && (
-          <div className="mb-4 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
+          <div className="mb-6 rounded-xl bg-amber-50 px-4 py-3 text-sm text-amber-700">
             {joinError}
           </div>
         )}
 
-        <div className="mb-6 flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
-          <Search className="h-5 w-5 text-slate-400" />
-          <input
-            type="text"
-            placeholder="Search communities..."
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-transparent text-sm outline-none"
-          />
-        </div>
+        <div className="grid gap-8 lg:grid-cols-[1fr_320px]">
 
-        <div className="grid gap-4 md:grid-cols-2">
-          {filtered.map((community) => (
-            <CommunityCard
-              key={community.id}
-              community={community}
-              isMember={memberCommunityIds.has(community.id)}
-              canJoin={memberships.length < maxCommunities}
-              onJoin={() => handleJoin(community.id)}
-              onLeave={() => leave(community.id)}
+          {/* Main content */}
+          <div>
+
+            {/* Joined */}
+            <section className="mb-10">
+              <div className="mb-1 flex items-center gap-2">
+                <span className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">
+                  1
+                </span>
+                <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                  Joined Communities ({joined.length})
+                </h2>
+              </div>
+              <p className="mb-4 pl-8 text-sm text-slate-500">
+                Communities you&apos;re a part of. Jump into conversations
+                anytime.
+              </p>
+
+              {joined.length === 0 ? (
+                <div className="rounded-3xl border border-dashed border-slate-200 bg-white/60 p-8 text-center">
+                  <p className="text-sm text-slate-500">
+                    You haven&apos;t joined any communities yet -- pick one
+                    from Discover below to get started.
+                  </p>
+                </div>
+              ) : (
+                <div className="grid gap-5 md:grid-cols-2">
+                  {joined.map((community) => (
+                    <JoinedCommunityCard
+                      key={community.id}
+                      community={community}
+                      memberCount={memberCounts[community.id] ?? 0}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+
+            {/* Discover */}
+            <section>
+              <div className="mb-1 flex items-center justify-between gap-4">
+                <div className="flex items-center gap-2">
+                  <span className="flex h-6 w-6 items-center justify-center rounded-full bg-violet-600 text-xs font-bold text-white">
+                    2
+                  </span>
+                  <h2 className="text-lg font-bold tracking-tight text-slate-900">
+                    Discover Communities
+                  </h2>
+                </div>
+                {!atLimit && (
+                  <p className="hidden text-sm text-slate-400 md:block">
+                    You can join {maxCommunities - memberships.length} more{" "}
+                    {maxCommunities - memberships.length === 1
+                      ? "community"
+                      : "communities"}
+                  </p>
+                )}
+              </div>
+              <p className="mb-4 pl-8 text-sm text-slate-500">
+                Explore new spaces and find your people.
+              </p>
+
+              {discover.length === 0 ? (
+                <div className="rounded-3xl border border-dashed border-slate-200 bg-white/60 p-8 text-center">
+                  <p className="text-sm text-slate-500">
+                    {search
+                      ? "No communities match your search."
+                      : "You've joined every available community."}
+                  </p>
+                </div>
+              ) : (
+                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                  {discover.map((community) => (
+                    <DiscoverCommunityCard
+                      key={community.id}
+                      community={community}
+                      memberCount={memberCounts[community.id] ?? 0}
+                      atLimit={atLimit}
+                      joining={joiningId === community.id}
+                      onJoin={() => handleJoin(community.id)}
+                    />
+                  ))}
+                </div>
+              )}
+            </section>
+
+          </div>
+
+          {/* Sidebar */}
+          <div className="flex flex-col gap-6">
+            <MembershipStatusCard
+              joinedCount={memberships.length}
+              maxCommunities={maxCommunities}
             />
-          ))}
+            <SuggestedCommunities
+              communities={discover}
+              memberCounts={memberCounts}
+              atLimit={atLimit}
+              onJoin={handleJoin}
+            />
+            <CommunityGuidelinesCard />
+          </div>
+
         </div>
       </div>
     </main>
