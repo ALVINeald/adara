@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   getCommunities,
   getMemberships,
+  getAllMembershipCommunityIds,
   joinCommunity,
   leaveCommunity,
 } from "@/lib/communities";
@@ -44,6 +45,7 @@ function mapMemberships(data: any[]): Membership[] {
 export function useCommunities(userId?: string) {
   const [communities, setCommunities] = useState<Community[]>([]);
   const [memberships, setMemberships] = useState<Membership[]>([]);
+  const [memberCounts, setMemberCounts] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
   const hasLoadedOnce = useRef(false);
 
@@ -59,6 +61,13 @@ export function useCommunities(userId?: string) {
     try {
       const { data: communityData } = await getCommunities();
       setCommunities(mapCommunities(communityData ?? []));
+
+      const { data: allMembershipRows } = await getAllMembershipCommunityIds();
+      const counts: Record<string, number> = {};
+      (allMembershipRows ?? []).forEach((row: any) => {
+        counts[row.community_id] = (counts[row.community_id] ?? 0) + 1;
+      });
+      setMemberCounts(counts);
 
       if (userId) {
         const { data: membershipData } = await getMemberships(userId);
@@ -101,6 +110,7 @@ export function useCommunities(userId?: string) {
   return {
     communities,
     memberships,
+    memberCounts,
     loading,
     join,
     leave,

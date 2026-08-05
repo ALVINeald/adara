@@ -18,6 +18,17 @@ export async function getMemberships(userId: string) {
   return { data, error };
 }
 
+// Unscoped by user -- used to derive a real per-community member
+// count client-side. Only selects community_id (not full rows) to
+// keep the payload light even if membership counts grow.
+export async function getAllMembershipCommunityIds() {
+  const { data, error } = await supabase
+    .from("community_memberships")
+    .select("community_id");
+
+  return { data, error };
+}
+
 export async function joinCommunity(userId: string, communityId: string) {
   const { data, error } = await supabase
     .from("community_memberships")
