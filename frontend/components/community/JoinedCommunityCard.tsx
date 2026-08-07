@@ -18,7 +18,10 @@ export default function JoinedCommunityCard({
   const router = useRouter();
 
   return (
-    <div className="overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition hover:shadow-md">
+    <div
+      data-carousel-card
+      className="w-[280px] shrink-0 snap-start overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition hover:shadow-md"
+    >
 
       <div
         className={`relative h-32 bg-gradient-to-br ${getCommunityCoverGradient(
@@ -36,11 +39,11 @@ export default function JoinedCommunityCard({
           {community.category}
         </p>
 
-        <h3 className="mt-1 text-base font-bold text-slate-900">
+        <h3 className="mt-1 truncate text-base font-bold text-slate-900">
           {community.name}
         </h3>
 
-        <p className="mt-1.5 text-sm leading-6 text-slate-500">
+        <p className="mt-1.5 line-clamp-2 text-sm leading-6 text-slate-500">
           {community.description}
         </p>
 
