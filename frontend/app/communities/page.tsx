@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Users } from "lucide-react";
 
@@ -8,6 +8,8 @@ import { useAuth } from "@/hooks/useAuth";
 import { useCommunities } from "@/hooks/useCommunities";
 import JoinedCommunityCard from "@/components/community/JoinedCommunityCard";
 import DiscoverCommunityCard from "@/components/community/DiscoverCommunityCard";
+import CardCarousel from "@/components/community/CardCarousel";
+import BrowseAllCard from "@/components/community/BrowseAllCard";
 import MembershipStatusCard from "@/components/community/MembershipStatusCard";
 import SuggestedCommunities from "@/components/community/SuggestedCommunities";
 import CommunityGuidelinesCard from "@/components/community/CommunityGuidelinesCard";
@@ -36,6 +38,15 @@ export default function CommunitiesPage() {
   const [search, setSearch] = useState("");
   const [joinError, setJoinError] = useState<string | null>(null);
   const [joiningId, setJoiningId] = useState<string | null>(null);
+  const searchInputRef = useRef<HTMLInputElement>(null);
+
+  function jumpToSearch() {
+    searchInputRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+    searchInputRef.current?.focus();
+  }
 
   const memberCommunityIds = new Set(memberships.map((m) => m.communityId));
   const atLimit = memberships.length >= maxCommunities;
@@ -90,6 +101,7 @@ export default function CommunitiesPage() {
             <div className="flex items-center gap-2 rounded-full border border-slate-200 bg-white px-4 py-2.5 text-sm">
               <Search className="h-4 w-4 text-slate-400" />
               <input
+                ref={searchInputRef}
                 type="text"
                 placeholder="Search communities..."
                 value={search}
@@ -135,7 +147,7 @@ export default function CommunitiesPage() {
                   </p>
                 </div>
               ) : (
-                <div className="grid gap-5 md:grid-cols-2">
+                <CardCarousel>
                   {joined.map((community) => (
                     <JoinedCommunityCard
                       key={community.id}
@@ -143,7 +155,7 @@ export default function CommunitiesPage() {
                       memberCount={memberCounts[community.id] ?? 0}
                     />
                   ))}
-                </div>
+                </CardCarousel>
               )}
             </section>
 
@@ -180,7 +192,7 @@ export default function CommunitiesPage() {
                   </p>
                 </div>
               ) : (
-                <div className="grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+                <CardCarousel>
                   {discover.map((community) => (
                     <DiscoverCommunityCard
                       key={community.id}
@@ -191,7 +203,8 @@ export default function CommunitiesPage() {
                       onJoin={() => handleJoin(community.id)}
                     />
                   ))}
-                </div>
+                  <BrowseAllCard onClick={jumpToSearch} />
+                </CardCarousel>
               )}
             </section>
 
