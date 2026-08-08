@@ -1,74 +1,99 @@
 "use client";
 
-import { useRef, useState, useEffect, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-interface CardCarouselProps {
-  children: ReactNode;
+interface CardCarouselProps<T> {
+  items: T[];
+  renderItem: (item: T) => ReactNode;
+  getKey: (item: T) => string;
 }
 
-// Touch swipe works natively on any horizontally-scrollable container
-// with no extra code -- the arrows here are purely an added
-// convenience for mouse/trackpad users on tablet and desktop, hidden
-// on mobile since there's nothing for them to add there.
-export default function CardCarousel({ children }: CardCarouselProps) {
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [canScrollLeft, setCanScrollLeft] = useState(false);
-  const [canScrollRight, setCanScrollRight] = useState(false);
-
-  function updateArrowState() {
-    const el = scrollRef.current;
-    if (!el) return;
-    setCanScrollLeft(el.scrollLeft > 4);
-    setCanScrollRight(el.scrollLeft + el.clientWidth < el.scrollWidth - 4);
-  }
+// Paginated, not drag/swipe-based -- clicking Next replaces the
+// current batch of cards entirely rather than scrolling through a
+// long horizontal strip. Card height stays constant across pages
+// (all cards in a section are already uniform height), so paging
+// never changes the section's height, and the page itself never
+// grows taller because of this component.
+export default function CardCarousel<T>({
+  items,
+  renderItem,
+  getKey,
+}: CardCarouselProps<T>) {
+  const [perPage, setPerPage] = useState(1);
+  const [page, setPage] = useState(0);
 
   useEffect(() => {
-    updateArrowState();
-  }, [children]);
+    function updatePerPage() {
+      if (window.innerWidth >= 1024) {
+        setPerPage(3);
+      } else if (window.innerWidth >= 640) {
+        setPerPage(2);
+      } else {
+        setPerPage(1);
+      }
+    }
 
-  function scrollByCard(direction: "left" | "right") {
-    const el = scrollRef.current;
-    if (!el) return;
+    updatePerPage();
+    window.addEventListener("resize", updatePerPage);
+    return () => window.removeEventListener("resize", updatePerPage);
+  }, []);
 
-    const card = el.querySelector<HTMLElement>("[data-carousel-card]");
-    const cardWidth = card ? card.offsetWidth + 20 : 300;
+  const totalPages = Math.max(Math.ceil(items.length / perPage), 1);
 
-    el.scrollBy({
-      left: direction === "left" ? -cardWidth : cardWidth,
-      behavior: "smooth",
-    });
-  }
+  // Keep the current page in range if perPage changes (window
+  // resize) or the item count shrinks (e.g. after joining a
+  // community, it moves out of the Discover list).
+  useEffect(() => {
+    if (page > totalPages - 1) {
+      setPage(Math.max(totalPages - 1, 0));
+    }
+  }, [totalPages, page]);
+
+  const visibleItems = items.slice(page * perPage, page * perPage + perPage);
 
   return (
-    <div className="relative">
-
-      {canScrollLeft && (
-        <button
-          onClick={() => scrollByCard("left")}
-          className="absolute -left-4 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-md transition hover:text-violet-600 md:flex"
-        >
-          <ChevronLeft className="h-4 w-4" />
-        </button>
-      )}
-
+    <div>
       <div
-        ref={scrollRef}
-        onScroll={updateArrowState}
-        className="scrollbar-hide flex snap-x snap-mandatory gap-5 overflow-x-auto scroll-smooth pb-1"
+        className="grid gap-5"
+        style={{ gridTemplateColumns: `repeat(${perPage}, minmax(0, 1fr))` }}
       >
-        {children}
+        {visibleItems.map((item) => (
+          <div key={getKey(item)}>{renderItem(item)}</div>
+        ))}
       </div>
 
-      {canScrollRight && (
-        <button
-          onClick={() => scrollByCard("right")}
-          className="absolute -right-4 top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 shadow-md transition hover:text-violet-600 md:flex"
-        >
-          <ChevronRight className="h-4 w-4" />
-        </button>
-      )}
+      {totalPages > 1 && (
+        <div className="mt-4 flex items-center justify-center gap-4">
+          <button
+            onClick={() => setPage((p) => Math.max(p - 1, 0))}
+            disabled={page === 0}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:text-violet-600 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
 
+          <div className="flex items-center gap-1.5">
+            {Array.from({ length: totalPages }).map((_, i) => (
+              <button
+                key={i}
+                onClick={() => setPage(i)}
+                className={`h-1.5 rounded-full transition-all ${
+                  i === page ? "w-5 bg-violet-600" : "w-1.5 bg-slate-200"
+                }`}
+              />
+            ))}
+          </div>
+
+          <button
+            onClick={() => setPage((p) => Math.min(p + 1, totalPages - 1))}
+            disabled={page === totalPages - 1}
+            className="flex h-8 w-8 items-center justify-center rounded-full border border-slate-200 bg-white text-slate-500 transition hover:text-violet-600 disabled:cursor-not-allowed disabled:opacity-40"
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
+        </div>
+      )}
     </div>
   );
 }
