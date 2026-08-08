@@ -18,10 +18,7 @@ export default function JoinedCommunityCard({
   const router = useRouter();
 
   return (
-    <div
-      data-carousel-card
-      className="w-[280px] shrink-0 snap-start overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition hover:shadow-md"
-    >
+    <div className="w-full overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition hover:shadow-md">
 
       <div
         className={`relative h-32 bg-gradient-to-br ${getCommunityCoverGradient(

@@ -21,10 +21,7 @@ export default function DiscoverCommunityCard({
   joining,
 }: DiscoverCommunityCardProps) {
   return (
-    <div
-      data-carousel-card
-      className="w-[260px] shrink-0 snap-start overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition hover:shadow-md"
-    >
+    <div className="w-full overflow-hidden rounded-3xl border border-slate-100 bg-white shadow-sm transition hover:shadow-md">
 
       <div
         className={`relative h-28 bg-gradient-to-br ${getCommunityCoverGradient(
