@@ -9,7 +9,6 @@ import { useCommunities } from "@/hooks/useCommunities";
 import JoinedCommunityCard from "@/components/community/JoinedCommunityCard";
 import DiscoverCommunityCard from "@/components/community/DiscoverCommunityCard";
 import CardCarousel from "@/components/community/CardCarousel";
-import BrowseAllCard from "@/components/community/BrowseAllCard";
 import MembershipStatusCard from "@/components/community/MembershipStatusCard";
 import SuggestedCommunities from "@/components/community/SuggestedCommunities";
 import CommunityGuidelinesCard from "@/components/community/CommunityGuidelinesCard";
@@ -147,15 +146,16 @@ export default function CommunitiesPage() {
                   </p>
                 </div>
               ) : (
-                <CardCarousel>
-                  {joined.map((community) => (
+                <CardCarousel
+                  items={joined}
+                  getKey={(community) => community.id}
+                  renderItem={(community) => (
                     <JoinedCommunityCard
-                      key={community.id}
                       community={community}
                       memberCount={memberCounts[community.id] ?? 0}
                     />
-                  ))}
-                </CardCarousel>
+                  )}
+                />
               )}
             </section>
 
@@ -170,14 +170,22 @@ export default function CommunitiesPage() {
                     Discover Communities
                   </h2>
                 </div>
-                {!atLimit && (
-                  <p className="hidden text-sm text-slate-400 md:block">
-                    You can join {maxCommunities - memberships.length} more{" "}
-                    {maxCommunities - memberships.length === 1
-                      ? "community"
-                      : "communities"}
-                  </p>
-                )}
+                <div className="flex items-center gap-4">
+                  {!atLimit && (
+                    <p className="hidden text-sm text-slate-400 md:block">
+                      You can join {maxCommunities - memberships.length} more{" "}
+                      {maxCommunities - memberships.length === 1
+                        ? "community"
+                        : "communities"}
+                    </p>
+                  )}
+                  <button
+                    onClick={jumpToSearch}
+                    className="text-sm font-medium text-violet-600 hover:text-violet-700"
+                  >
+                    Search
+                  </button>
+                </div>
               </div>
               <p className="mb-4 pl-8 text-sm text-slate-500">
                 Explore new spaces and find your people.
@@ -192,19 +200,19 @@ export default function CommunitiesPage() {
                   </p>
                 </div>
               ) : (
-                <CardCarousel>
-                  {discover.map((community) => (
+                <CardCarousel
+                  items={discover}
+                  getKey={(community) => community.id}
+                  renderItem={(community) => (
                     <DiscoverCommunityCard
-                      key={community.id}
                       community={community}
                       memberCount={memberCounts[community.id] ?? 0}
                       atLimit={atLimit}
                       joining={joiningId === community.id}
                       onJoin={() => handleJoin(community.id)}
                     />
-                  ))}
-                  <BrowseAllCard onClick={jumpToSearch} />
-                </CardCarousel>
+                  )}
+                />
               )}
             </section>
 
