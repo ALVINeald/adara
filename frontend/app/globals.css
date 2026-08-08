@@ -69,20 +69,6 @@ body {
   border-radius: 9999px;
 }
 
-/* Hides the scrollbar on the community carousels while keeping the
-   container fully scrollable (touch swipe, arrow buttons, and
-   trackpad/mouse-wheel drag all still work) -- the row is meant to
-   look like a swipeable carousel, not a scroll pane with a visible
-   track. */
-.scrollbar-hide {
-  scrollbar-width: none;
-  -ms-overflow-style: none;
-}
-
-.scrollbar-hide::-webkit-scrollbar {
-  display: none;
-}
-
 /* Reliable full-viewport height on mobile. Written as two
    consecutive declarations of the same property (not as separate
    Tailwind classes) specifically because a browser that doesn't
