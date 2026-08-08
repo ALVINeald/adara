@@ -12,6 +12,7 @@ import { useConversations } from "@/hooks/useConversations";
 import { useMessages } from "@/hooks/useMessages";
 import { getProfileNamesByIds } from "@/lib/profiles";
 import { useChatSidebar } from "@/lib/chatSidebarContext";
+import { supabase } from "@/lib/supabase";
 
 import type { AIMessage } from "@/lib/ai/types";
 import type { ChatMessage } from "./types";
@@ -112,10 +113,19 @@ export default function ChatLayout() {
 
       resetIdleTimeout();
 
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (!session?.access_token) {
+        throw new Error("No active session");
+      }
+
       const response = await fetch("/api/chat", {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({ messages: history }),
         signal: controller.signal,
