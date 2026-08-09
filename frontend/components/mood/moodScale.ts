@@ -57,3 +57,12 @@ export function getMoodRingColorClass(level?: number): string {
       return "border-slate-200 border-dashed";
   }
 }
+
+// Single consistent pill style for mood badges on Journal entry cards
+// and the entry details panel. Deliberately NOT a different hue per
+// mood (no red-for-low/green-for-high) -- same reasoning as
+// getMoodColorClass above. One calm, consistent violet pill reads
+// as "this is your mood, noted" rather than judging the mood itself.
+export function getMoodBadgeClass(): string {
+  return "bg-violet-50 text-violet-700";
+}
