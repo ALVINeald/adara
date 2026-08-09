@@ -13,6 +13,12 @@ interface AppShellProps {
   // don't want this page-level padding, which assumes normal page
   // scroll.
   noBottomPadding?: boolean;
+  // Fully removes the floating mobile tab bar rather than just
+  // padding around it -- for genuinely distraction-free full-screen
+  // flows (e.g. the Journal writing canvas on mobile) where even a
+  // persistent nav affordance competes with focus. Opt-in and rare;
+  // most pages should keep the tab bar for orientation.
+  hideMobileTabs?: boolean;
 }
 
 const SIDEBAR_COLLAPSED_KEY = "adara:sidebar-collapsed";
@@ -20,6 +26,7 @@ const SIDEBAR_COLLAPSED_KEY = "adara:sidebar-collapsed";
 export default function AppShell({
   children,
   noBottomPadding = false,
+  hideMobileTabs = false,
 }: AppShellProps) {
   // Default to expanded on first render (matches server-rendered
   // HTML, avoiding a hydration mismatch), then sync with whatever
@@ -63,7 +70,7 @@ export default function AppShell({
         {children}
       </div>
 
-      <MobileBottomTabs />
+      {!hideMobileTabs && <MobileBottomTabs />}
     </>
   );
 }

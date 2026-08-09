@@ -80,3 +80,11 @@ body {
   height: 100vh;
   height: 100dvh;
 }
+
+/* Same fixed-viewport-height pattern as chat-shell-height above,
+   named separately since the Journal workspace (list + canvas +
+   details) is a distinct fixed-height shell, not the chat one. */
+.journal-shell-height {
+  height: 100vh;
+  height: 100dvh;
+}

@@ -1,22 +1,18 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Plus, Search } from "lucide-react";
+import { BookHeart } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useJournalEntries } from "@/hooks/useJournalEntries";
 import type { JournalEntry } from "@/hooks/useJournalEntries";
 
-import JournalEditor from "@/components/journal/JournalEditor";
-import JournalEntryCard from "@/components/journal/JournalEntryCard";
-import { MOOD_SCALE } from "@/components/mood/moodScale";
 import AppShell from "@/components/navigation/AppShell";
+import JournalListPanel from "@/components/journal/JournalListPanel";
+import JournalCanvas from "@/components/journal/JournalCanvas";
 
-type ViewState =
-  | { mode: "list" }
-  | { mode: "new" }
-  | { mode: "edit"; entry: JournalEntry };
+type View = { mode: "list" } | { mode: "editing"; entry: JournalEntry | null };
 
 export default function JournalPage() {
   const router = useRouter();
@@ -34,155 +30,107 @@ export default function JournalPage() {
     saveNewEntry,
     saveExistingEntry,
     removeEntry,
+    toggleFavorite,
   } = useJournalEntries(user?.id);
 
-  const [view, setView] = useState<ViewState>({ mode: "list" });
-  const [search, setSearch] = useState("");
-  const [moodFilter, setMoodFilter] = useState<number | null>(null);
-  const [dateFrom, setDateFrom] = useState("");
-  const [dateTo, setDateTo] = useState("");
+  const [view, setView] = useState<View>({ mode: "list" });
 
-  const filteredEntries = useMemo(() => {
-    return entries.filter((entry) => {
-      const matchesSearch =
-        !search.trim() ||
-        entry.title.toLowerCase().includes(search.toLowerCase()) ||
-        entry.content.toLowerCase().includes(search.toLowerCase());
+  // If the entry currently open gets updated elsewhere (e.g. a
+  // refresh after autosave), keep the canvas pointed at the latest
+  // copy rather than a stale snapshot from when it was opened.
+  useEffect(() => {
+    if (view.mode === "editing" && view.entry) {
+      const latest = entries.find((e) => e.id === view.entry!.id);
+      if (latest && latest !== view.entry) {
+        setView({ mode: "editing", entry: latest });
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [entries]);
 
-      const matchesMood =
-        moodFilter === null || entry.moodLevel === moodFilter;
+  async function handleDelete(id: string) {
+    const confirmed = window.confirm(
+      "Delete this entry? You can recover it for 30 days from the trash."
+    );
+    if (!confirmed) return;
 
-      const entryDate = entry.createdAt.slice(0, 10);
-      const matchesFrom = !dateFrom || entryDate >= dateFrom;
-      const matchesTo = !dateTo || entryDate <= dateTo;
+    await removeEntry(id);
+    if (view.mode === "editing" && view.entry?.id === id) {
+      setView({ mode: "list" });
+    }
+  }
 
-      return matchesSearch && matchesMood && matchesFrom && matchesTo;
-    });
-  }, [entries, search, moodFilter, dateFrom, dateTo]);
-
-  if (authLoading || entriesLoading) {
+  if (authLoading) {
     return (
-      <main className="flex min-h-screen items-center justify-center bg-slate-50">
-        <p className="text-slate-500">Loading...</p>
-      </main>
+      <AppShell>
+        <main className="flex min-h-screen items-center justify-center bg-slate-50">
+          <p className="text-slate-500">Loading...</p>
+        </main>
+      </AppShell>
     );
   }
 
+  const isEditing = view.mode === "editing";
+  const selectedEntryId = isEditing ? view.entry?.id ?? null : null;
+
   return (
-    <AppShell>
-    <main className="min-h-screen bg-[linear-gradient(135deg,#f8fcff_0%,#eef8fb_45%,#e8fbf8_100%)] p-6">
-      <div className="mx-auto max-w-4xl">
+    <AppShell hideMobileTabs={isEditing} noBottomPadding={isEditing}>
+      <div className="journal-shell-height flex overflow-hidden bg-slate-50">
+        {/* List panel: full-width on mobile when in list mode, fixed
+            column alongside the canvas from lg upward regardless of
+            mode -- this is the "desktop split-pane, mobile full-page
+            push" requirement. */}
+        <div
+          className={`w-full shrink-0 overflow-hidden border-r border-slate-100 bg-white lg:flex lg:w-[380px] ${
+            isEditing ? "hidden" : "flex"
+          }`}
+        >
+          <JournalListPanel
+            entries={entries}
+            selectedEntryId={selectedEntryId}
+            loading={entriesLoading}
+            onSelectEntry={(entry) => setView({ mode: "editing", entry })}
+            onNewEntry={() => setView({ mode: "editing", entry: null })}
+            onDeleteEntry={handleDelete}
+            onToggleFavorite={(id) => {
+              const target = entries.find((e) => e.id === id);
+              if (target) toggleFavorite(id, !target.isFavorited);
+            }}
+          />
+        </div>
 
-        {view.mode === "list" && (
-          <>
-            <div className="mb-6 flex items-center justify-between">
-              <h1 className="text-2xl font-bold text-slate-900">Journal</h1>
-
-              <button
-                onClick={() => setView({ mode: "new" })}
-                className="flex items-center gap-2 rounded-xl bg-cyan-600 px-5 py-3 font-medium text-white transition hover:bg-cyan-700"
-              >
-                <Plus className="h-4 w-4" />
-                New Entry
-              </button>
-            </div>
-
-            <div className="mb-6 rounded-[28px] bg-white p-5 shadow-sm">
-              <div className="mb-4 flex items-center gap-3 rounded-xl border border-slate-200 bg-white px-4 py-3">
-                <Search className="h-5 w-5 text-slate-400" />
-                <input
-                  type="text"
-                  placeholder="Search entries..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  className="w-full bg-transparent text-sm outline-none"
-                />
+        {/* Canvas: hidden on mobile until an entry (or "new") is
+            selected; always visible from lg upward. */}
+        <div
+          className={`min-w-0 flex-1 overflow-hidden bg-white lg:flex ${
+            isEditing ? "flex" : "hidden"
+          }`}
+        >
+          {isEditing ? (
+            <JournalCanvas
+              key={view.entry?.id ?? "new"}
+              entry={view.entry}
+              onBack={() => setView({ mode: "list" })}
+              onCreate={saveNewEntry}
+              onUpdate={saveExistingEntry}
+            />
+          ) : (
+            <div className="hidden h-full w-full flex-col items-center justify-center gap-3 text-center lg:flex">
+              <div className="flex h-14 w-14 items-center justify-center rounded-full bg-violet-50">
+                <BookHeart className="h-6 w-6 text-violet-400" />
               </div>
-
-              <div className="flex flex-wrap items-center gap-3">
-                <input
-                  type="date"
-                  value={dateFrom}
-                  onChange={(e) => setDateFrom(e.target.value)}
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-cyan-500"
-                />
-                <span className="text-sm text-slate-400">to</span>
-                <input
-                  type="date"
-                  value={dateTo}
-                  onChange={(e) => setDateTo(e.target.value)}
-                  className="rounded-lg border border-slate-200 px-3 py-2 text-sm outline-none focus:border-cyan-500"
-                />
-
-                <div className="ml-auto flex items-center gap-1">
-                  {MOOD_SCALE.map((option) => (
-                    <button
-                      key={option.level}
-                      type="button"
-                      onClick={() =>
-                        setMoodFilter(
-                          moodFilter === option.level ? null : option.level
-                        )
-                      }
-                      title={option.label}
-                      className={`flex h-9 w-9 items-center justify-center rounded-lg text-lg transition ${
-                        moodFilter === option.level
-                          ? "bg-cyan-100 ring-2 ring-cyan-500"
-                          : "hover:bg-slate-100"
-                      }`}
-                    >
-                      {option.emoji}
-                    </button>
-                  ))}
-                </div>
+              <div>
+                <p className="font-medium text-slate-600">
+                  Select an entry, or write a new one
+                </p>
+                <p className="mt-1 text-sm text-slate-400">
+                  Your entries stay private to you.
+                </p>
               </div>
             </div>
-
-            {filteredEntries.length === 0 ? (
-              <p className="px-2 text-sm text-slate-500">No entries found.</p>
-            ) : (
-              <div className="space-y-3">
-                {filteredEntries.map((entry) => (
-                  <JournalEntryCard
-                    key={entry.id}
-                    entry={entry}
-                    onOpen={() => setView({ mode: "edit", entry })}
-                    onDelete={() => removeEntry(entry.id)}
-                  />
-                ))}
-              </div>
-            )}
-          </>
-        )}
-
-        {view.mode === "new" && (
-          <JournalEditor
-            onSave={async (title, content, moodLevel) => {
-              await saveNewEntry(title, content, moodLevel);
-              setView({ mode: "list" });
-            }}
-            onCancel={() => setView({ mode: "list" })}
-          />
-        )}
-
-        {view.mode === "edit" && (
-          <JournalEditor
-            entry={view.entry}
-            onSave={async (title, content, moodLevel) => {
-              await saveExistingEntry(
-                view.entry.id,
-                title,
-                content,
-                moodLevel
-              );
-              setView({ mode: "list" });
-            }}
-            onCancel={() => setView({ mode: "list" })}
-          />
-        )}
-
+          )}
+        </div>
       </div>
-    </main>
     </AppShell>
   );
 }
