@@ -5,6 +5,7 @@ import { useEffect, useRef, useState } from "react";
 import {
   createAppointmentRequest,
   getAppointmentRequests,
+  type AppointmentRequestPayload,
 } from "@/lib/therapists";
 
 export interface AppointmentRequest {
@@ -37,6 +38,7 @@ export function useAppointmentRequests(userId?: string) {
       return;
     }
     load();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   async function load() {
@@ -55,14 +57,14 @@ export function useAppointmentRequests(userId?: string) {
     }
   }
 
-  async function requestAppointment(
-    therapistId: string,
-    message: string | null
+  async function submitAppointmentRequest(
+    payload: AppointmentRequestPayload
   ) {
-    if (!userId) return;
-    await createAppointmentRequest(userId, therapistId, message);
+    if (!userId) throw new Error("Not signed in");
+    const { error } = await createAppointmentRequest(userId, payload);
+    if (error) throw error;
     await load();
   }
 
-  return { requests, loading, requestAppointment };
+  return { requests, loading, submitAppointmentRequest };
 }
