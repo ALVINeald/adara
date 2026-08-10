@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { CheckCircle2, X } from "lucide-react";
-import { z } from "zod";
 
 import type { Therapist } from "@/hooks/useTherapists";
 import type { AppointmentRequestPayload } from "@/lib/therapists";
@@ -14,25 +13,41 @@ interface AppointmentWizardProps {
   onSubmit: (payload: AppointmentRequestPayload) => Promise<void>;
 }
 
-const step1Schema = z.object({
-  preferredContactMethod: z.enum(["phone", "email", "either"], {
-    errorMap: () => ({ message: "Choose how you'd like to be contacted." }),
-  }),
-});
+type FieldErrors = Record<string, string>;
 
-const step2Schema = z.object({
-  preferredSessionType: z.enum(["online", "in_person", "no_preference"], {
-    errorMap: () => ({ message: "Choose a session preference." }),
-  }),
-  availabilityNotes: z.string().max(300, "Keep it under 300 characters.").optional(),
-});
+// Hand-rolled instead of a schema library -- four fields with simple
+// rules (a required choice, a couple of length checks) don't need a
+// validation dependency, and it's one less package that can drift out
+// of sync during a manual file merge.
+function validateStep1(form: FormState): FieldErrors {
+  const errors: FieldErrors = {};
+  if (!form.preferredContactMethod) {
+    errors.preferredContactMethod = "Choose how you'd like to be contacted.";
+  }
+  return errors;
+}
 
-const step3Schema = z.object({
-  message: z
-    .string()
-    .min(10, "Share at least a sentence or two so they know how to help.")
-    .max(1000, "Keep it under 1000 characters."),
-});
+function validateStep2(form: FormState): FieldErrors {
+  const errors: FieldErrors = {};
+  if (!form.preferredSessionType) {
+    errors.preferredSessionType = "Choose a session preference.";
+  }
+  if (form.availabilityNotes.length > 300) {
+    errors.availabilityNotes = "Keep it under 300 characters.";
+  }
+  return errors;
+}
+
+function validateStep3(form: FormState): FieldErrors {
+  const errors: FieldErrors = {};
+  const trimmed = form.message.trim();
+  if (trimmed.length < 10) {
+    errors.message = "Share at least a sentence or two so they know how to help.";
+  } else if (trimmed.length > 1000) {
+    errors.message = "Keep it under 1000 characters.";
+  }
+  return errors;
+}
 
 type FormState = {
   preferredContactMethod: "phone" | "email" | "either" | "";
@@ -98,25 +113,14 @@ export default function AppointmentWizard({
   }
 
   function validateStep(): boolean {
-    let result;
-    if (step === 0) {
-      result = step1Schema.safeParse({
-        preferredContactMethod: form.preferredContactMethod || undefined,
-      });
-    } else if (step === 1) {
-      result = step2Schema.safeParse({
-        preferredSessionType: form.preferredSessionType || undefined,
-        availabilityNotes: form.availabilityNotes,
-      });
-    } else {
-      result = step3Schema.safeParse({ message: form.message });
-    }
+    const fieldErrors =
+      step === 0
+        ? validateStep1(form)
+        : step === 1
+          ? validateStep2(form)
+          : validateStep3(form);
 
-    if (!result.success) {
-      const fieldErrors: Record<string, string> = {};
-      result.error.issues.forEach((issue) => {
-        fieldErrors[String(issue.path[0])] = issue.message;
-      });
+    if (Object.keys(fieldErrors).length > 0) {
       setErrors(fieldErrors);
       return false;
     }
