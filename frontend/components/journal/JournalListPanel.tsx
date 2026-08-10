@@ -136,8 +136,8 @@ export default function JournalListPanel({
           New Entry
         </button>
 
-        <div className="mt-3 flex items-center gap-2">
-          <div className="relative flex-1">
+        <div className="relative mt-3 flex items-center gap-2">
+          <div className="flex-1">
             <button
               type="button"
               onClick={() => setFiltersOpen((open) => !open)}
@@ -162,7 +162,7 @@ export default function JournalListPanel({
                   className="fixed inset-0 z-10"
                   onClick={() => setFiltersOpen(false)}
                 />
-                <div className="absolute left-0 top-full z-20 mt-2 w-72 rounded-2xl border border-slate-100 bg-white p-4 shadow-lg">
+                <div className="absolute left-0 top-full z-20 mt-2 w-72 max-w-[calc(100vw-2.5rem)] rounded-2xl border border-slate-100 bg-white p-4 shadow-lg">
                   <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-400">
                     Mood
                   </p>
@@ -292,7 +292,7 @@ export default function JournalListPanel({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-5 pb-3">
+      <div className="flex-1 overflow-y-auto px-5 pb-24 md:pb-3">
         {loading ? (
           <div className="space-y-3">
             {[0, 1, 2].map((i) => (
@@ -325,7 +325,7 @@ export default function JournalListPanel({
       </div>
 
       {filteredEntries.length > 0 && (
-        <div className="flex items-center justify-between border-t border-slate-100 px-5 py-3 text-xs text-slate-500">
+        <div className="flex items-center justify-between border-t border-slate-100 px-5 pb-24 pt-3 text-xs text-slate-500 md:pb-3">
           <span>
             {(currentPage - 1) * PAGE_SIZE + 1}
             &ndash;

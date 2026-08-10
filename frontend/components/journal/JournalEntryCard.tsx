@@ -68,14 +68,16 @@ export default function JournalEntryCard({
 
         <div className="mt-1 flex items-center gap-2 text-xs text-slate-500">
           {moodOption && (
-            <span
-              className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium ${getMoodBadgeClass()}`}
-            >
-              <span>{moodOption.emoji}</span>
-              {moodOption.label}
-            </span>
+            <>
+              <span
+                className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 font-medium ${getMoodBadgeClass()}`}
+              >
+                <span>{moodOption.emoji}</span>
+                {moodOption.label}
+              </span>
+              <span>&middot;</span>
+            </>
           )}
-          <span>&middot;</span>
           <span>{formatTime(entry.createdAt)}</span>
         </div>
 
