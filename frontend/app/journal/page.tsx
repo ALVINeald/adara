@@ -74,7 +74,7 @@ export default function JournalPage() {
   const selectedEntryId = isEditing ? view.entry?.id ?? null : null;
 
   return (
-    <AppShell hideMobileTabs={isEditing} noBottomPadding={isEditing}>
+    <AppShell hideMobileTabs={isEditing} noBottomPadding>
       <div className="journal-shell-height flex overflow-hidden bg-slate-50">
         {/* List panel: full-width on mobile when in list mode, fixed
             column alongside the canvas from lg upward regardless of
