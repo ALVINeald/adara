@@ -1,16 +1,15 @@
-export interface Article {
-  slug: string;
-  title: string;
-  summary: string;
-  content: string[];
-}
+import type { Article } from "@/types/wellness";
 
+// readTimeMinutes computed from actual word count at 200wpm, not
+// estimated -- all five come out to 1 min given their length.
 export const ARTICLES: Article[] = [
   {
     slug: "grounding-techniques",
     title: "Grounding Techniques for Anxious Moments",
     summary:
       "A few simple ways to bring yourself back to the present when anxiety takes over.",
+    tags: ["anxiety"],
+    readTimeMinutes: 1,
     content: [
       "When anxiety spikes, your mind often races ahead — to what might go wrong, what you should have said, what happens next. Grounding techniques work by pulling your attention back to right now, to your actual body in this actual room, which is usually a safer place than wherever your thoughts have gone.",
       "One simple method is the 5-4-3-2-1 technique: name five things you can see, four things you can touch, three things you can hear, two things you can smell, and one thing you can taste. It sounds almost too simple to work, but the act of searching for specific details gives your mind something concrete to do instead of spiraling.",
@@ -23,6 +22,8 @@ export const ARTICLES: Article[] = [
     title: "Better Sleep, One Small Step at a Time",
     summary:
       "Sleep struggles rarely fix themselves overnight — small, consistent changes tend to help more than big ones.",
+    tags: ["sleep"],
+    readTimeMinutes: 1,
     content: [
       "Poor sleep and low mood often feed each other. It's hard to sleep when your mind is busy, and it's hard to feel steady when you're exhausted. If you're in that cycle, know that it's common, and that small changes tend to move the needle more reliably than a single dramatic fix.",
       "A consistent wake-up time — even on days you slept badly — helps your body's internal clock more than a consistent bedtime does. It feels counterintuitive to get up on schedule after a rough night, but it's one of the more effective levers available to you.",
@@ -35,6 +36,8 @@ export const ARTICLES: Article[] = [
     title: "What to Do When You Don't Know What You're Feeling",
     summary:
       "Sometimes the hardest part isn't the feeling itself — it's not being able to name it.",
+    tags: ["emotions"],
+    readTimeMinutes: 1,
     content: [
       "Not every difficult moment comes with a clear label. Sometimes you just feel 'off,' or heavy, or restless in a way you can't quite pin down. That's not a failure of self-awareness — emotions are often layered, and it's normal for it to take some time to sort out what's actually going on.",
       "One approach is to stop trying to name the single 'right' feeling and instead ask a few smaller questions: is this closer to sadness or to frustration? Does it feel more like tiredness or like dread? You don't need a perfect answer — narrowing it down even a little often loosens the knot.",
@@ -47,6 +50,8 @@ export const ARTICLES: Article[] = [
     title: "Living Well Alongside a Chronic Illness",
     summary:
       "Chronic illness affects more than the body — the emotional weight is real, and worth acknowledging.",
+    tags: ["chronic-illness"],
+    readTimeMinutes: 1,
     content: [
       "Living with a chronic illness means managing a body that doesn't always cooperate with your plans, alongside the emotional weight of uncertainty, fatigue, and sometimes grief for the life you expected to have. That emotional side is just as real as the physical symptoms, even though it's talked about far less.",
       "It's common to feel like you have to perform wellness for the people around you — to say 'I'm fine' more often than it's true, because explaining the full picture feels exhausting. Give yourself permission to not do that in every space. You don't owe everyone the full story, but finding at least one place — a person, a journal, a community — where you can be honest about how hard it actually is can matter enormously.",
@@ -59,6 +64,8 @@ export const ARTICLES: Article[] = [
     title: "Gentle Ways to Cope with Grief",
     summary:
       "Grief doesn't move in a straight line, and there's no schedule you're supposed to be keeping.",
+    tags: ["grief"],
+    readTimeMinutes: 1,
     content: [
       "Grief has a way of showing up unpredictably — steady for a while, then suddenly overwhelming over something small, like a smell or a song. That unpredictability is normal. Grief was never a straight line, whatever the neat five-stage version you may have heard suggests.",
       "There's no correct timeline for grief, and no point at which you're supposed to be 'over it.' What tends to change over time isn't that the loss stops mattering, but that you slowly build a life that can hold it alongside everything else. Some days that feels possible. Other days it doesn't, and that's not a setback — it's just grief being grief.",
