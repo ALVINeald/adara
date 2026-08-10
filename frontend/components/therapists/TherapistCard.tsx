@@ -1,24 +1,31 @@
 "use client";
 
 import { useState } from "react";
-import { CheckCircle2 } from "lucide-react";
+import { motion, useReducedMotion } from "framer-motion";
+import { BadgeCheck, Bookmark } from "lucide-react";
 
 import type { Therapist } from "@/hooks/useTherapists";
 
 interface TherapistCardProps {
   therapist: Therapist;
   alreadyRequested: boolean;
-  onRequest: (message: string | null) => Promise<void>;
+  isSaved: boolean;
+  onToggleSaved: () => void;
+  onViewProfile: () => void;
+  onRequestAppointment: () => void;
 }
 
 export default function TherapistCard({
   therapist,
   alreadyRequested,
-  onRequest,
+  isSaved,
+  onToggleSaved,
+  onViewProfile,
+  onRequestAppointment,
 }: TherapistCardProps) {
-  const [showForm, setShowForm] = useState(false);
-  const [message, setMessage] = useState("");
-  const [sending, setSending] = useState(false);
+  const prefersReducedMotion = useReducedMotion();
+  const [imageFailed, setImageFailed] = useState(false);
+  const [imageLoaded, setImageLoaded] = useState(false);
 
   const initials = therapist.name
     .split(" ")
@@ -27,65 +34,113 @@ export default function TherapistCard({
     .slice(0, 2)
     .toUpperCase();
 
-  async function handleSend() {
-    setSending(true);
-    await onRequest(message.trim() ? message.trim() : null);
-    setSending(false);
-    setShowForm(false);
-  }
+  const showPhoto = therapist.photoUrl && !imageFailed;
 
   return (
-    <div className="rounded-[28px] bg-white p-6 shadow-sm">
-      <div className="flex items-start gap-4">
-        <div className="flex h-14 w-14 shrink-0 items-center justify-center rounded-full bg-cyan-600 font-semibold text-white">
-          {initials}
+    <motion.div
+      whileHover={prefersReducedMotion ? undefined : { y: -4 }}
+      transition={{ duration: 0.15 }}
+      className="rounded-3xl border border-[#E9E8FF] bg-white p-5 shadow-sm transition-shadow hover:shadow-lg"
+    >
+      <div className="flex items-start justify-between">
+        <div className="flex items-center gap-3">
+          <div className="relative h-14 w-14 shrink-0 overflow-hidden rounded-full bg-[#8B5CF6]">
+            {showPhoto ? (
+              // Plain <img>, not next/image -- this project's
+              // next.config.ts has no remotePatterns configured, and
+              // guessing a wildcard domain would defeat next/image's
+              // point without knowing the real Storage host. Falls
+              // back to initials on load failure either way.
+              // eslint-disable-next-line @next/next/no-img-element
+              <img
+                src={therapist.photoUrl ?? undefined}
+                alt=""
+                onLoad={() => setImageLoaded(true)}
+                onError={() => setImageFailed(true)}
+                className={`h-full w-full object-cover transition-opacity duration-300 ${
+                  imageLoaded ? "opacity-100" : "opacity-0"
+                }`}
+              />
+            ) : null}
+            {!showPhoto || !imageLoaded ? (
+              <span className="absolute inset-0 flex items-center justify-center font-semibold text-white">
+                {initials}
+              </span>
+            ) : null}
+          </div>
+
+          <div>
+            <div className="flex items-center gap-1.5">
+              {therapist.isVerified && (
+                <span className="flex items-center gap-1 text-xs font-medium text-emerald-600">
+                  <BadgeCheck className="h-3.5 w-3.5" />
+                  Verified
+                </span>
+              )}
+            </div>
+            <h3 className="font-semibold text-slate-900">{therapist.name}</h3>
+            <p className="text-sm text-slate-500">{therapist.specialty}</p>
+            {therapist.yearsExperience !== null && (
+              <p className="text-xs text-slate-400">
+                {therapist.yearsExperience} years experience
+              </p>
+            )}
+          </div>
         </div>
 
-        <div className="flex-1">
-          <h3 className="font-semibold text-slate-900">{therapist.name}</h3>
-          <p className="text-sm font-medium text-cyan-700">
-            {therapist.specialty}
-          </p>
-          <p className="mt-2 text-sm leading-6 text-slate-600">
-            {therapist.bio}
-          </p>
-        </div>
+        <button
+          type="button"
+          onClick={onToggleSaved}
+          aria-pressed={isSaved}
+          title={isSaved ? "Remove from saved" : "Save therapist"}
+          className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full transition active:scale-90 ${
+            isSaved ? "text-[#8B5CF6]" : "text-slate-300"
+          } hover:bg-[#F5F3FF] hover:text-[#8B5CF6]`}
+        >
+          <Bookmark className="h-4 w-4" fill={isSaved ? "currentColor" : "none"} />
+        </button>
       </div>
 
-      <div className="mt-4">
-        {alreadyRequested ? (
-          <div className="flex items-center gap-2 text-sm font-medium text-cyan-700">
-            <CheckCircle2 className="h-4 w-4" />
-            Requested
-          </div>
-        ) : showForm ? (
-          <div>
-            <textarea
-              value={message}
-              onChange={(e) => setMessage(e.target.value)}
-              placeholder="Add a note for the therapist (optional)..."
-              rows={2}
-              className="w-full resize-none rounded-xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none transition focus:border-cyan-500 focus:ring-2 focus:ring-cyan-100"
-            />
-            <button
-              type="button"
-              onClick={handleSend}
-              disabled={sending}
-              className="mt-3 rounded-xl bg-cyan-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-cyan-700 disabled:opacity-50"
+      {therapist.specialties.length > 0 && (
+        <div className="mt-3 flex flex-wrap gap-1.5">
+          {therapist.specialties.slice(0, 3).map((s) => (
+            <span
+              key={s}
+              className="rounded-full bg-[#F5F3FF] px-2.5 py-1 text-xs font-medium text-[#6D28D9]"
             >
-              {sending ? "Sending..." : "Send Request"}
-            </button>
+              {s}
+            </span>
+          ))}
+        </div>
+      )}
+
+      <p className="mt-3 line-clamp-2 text-sm leading-6 text-slate-600">
+        {therapist.bio}
+      </p>
+
+      <div className="mt-4 flex gap-2">
+        <button
+          type="button"
+          onClick={onViewProfile}
+          className="min-h-[44px] flex-1 rounded-xl border border-[#E9E8FF] bg-white text-sm font-medium text-slate-600 transition hover:bg-slate-50 active:scale-[0.98]"
+        >
+          View Profile
+        </button>
+        {alreadyRequested ? (
+          <div className="flex min-h-[44px] flex-1 items-center justify-center rounded-xl bg-[#F5F3FF] text-sm font-medium text-[#6D28D9]">
+            Requested
           </div>
         ) : (
           <button
             type="button"
-            onClick={() => setShowForm(true)}
-            className="rounded-xl bg-cyan-600 px-5 py-2 text-sm font-medium text-white transition hover:bg-cyan-700"
+            onClick={onRequestAppointment}
+            disabled={!therapist.acceptingNewClients}
+            className="min-h-[44px] flex-1 rounded-xl bg-[#8B5CF6] text-sm font-medium text-white transition hover:bg-[#7C3AED] active:scale-[0.98] disabled:cursor-not-allowed disabled:bg-slate-200 disabled:text-slate-400"
           >
-            Request Appointment
+            {therapist.acceptingNewClients ? "Request Appointment" : "Not Accepting Clients"}
           </button>
         )}
       </div>
-    </div>
+    </motion.div>
   );
 }
