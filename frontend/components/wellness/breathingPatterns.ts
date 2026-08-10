@@ -1,7 +1,8 @@
-import type { BreathingPattern } from "./BreathingExercise";
+import type { BreathingPattern } from "@/types/wellness";
 
 export const BREATHING_PATTERNS: BreathingPattern[] = [
   {
+    id: "box",
     name: "Box Breathing",
     description:
       "Equal counts of inhale, hold, exhale, and hold. Calming and grounding.",
@@ -13,6 +14,7 @@ export const BREATHING_PATTERNS: BreathingPattern[] = [
     ],
   },
   {
+    id: "4-7-8",
     name: "4-7-8 Technique",
     description:
       "A longer exhale to help ease anxiety and support restful sleep.",
@@ -23,8 +25,9 @@ export const BREATHING_PATTERNS: BreathingPattern[] = [
     ],
   },
   {
+    id: "calm",
     name: "Simple Calm Breath",
-    description: "A gentle, easy pattern — a good starting point.",
+    description: "A gentle, easy pattern -- a good starting point.",
     phases: [
       { label: "Breathe In", seconds: 4, scale: 1.3 },
       { label: "Breathe Out", seconds: 4, scale: 1 },
