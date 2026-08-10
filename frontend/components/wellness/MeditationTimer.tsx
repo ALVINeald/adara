@@ -1,25 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-
-const PROMPTS = [
-  "Notice your breath, without changing it.",
-  "Let your shoulders soften and drop.",
-  "There's nowhere else you need to be right now.",
-  "Notice any sounds around you, then let them pass.",
-  "Gently return your attention to your breath.",
-  "You don't have to fix anything right now. Just be here.",
-];
+import { Pause, Play, Square } from "lucide-react";
 
 const PROMPT_INTERVAL_SECONDS = 45;
 
 interface MeditationTimerProps {
   durationMinutes: number;
+  prompts: string[];
   onComplete: (durationSeconds: number) => void;
 }
 
 export default function MeditationTimer({
   durationMinutes,
+  prompts,
   onComplete,
 }: MeditationTimerProps) {
   const totalSeconds = durationMinutes * 60;
@@ -45,7 +39,7 @@ export default function MeditationTimer({
 
         const elapsed = totalSeconds - prev + 1;
         if (elapsed % PROMPT_INTERVAL_SECONDS === 0) {
-          setPromptIndex((i) => (i + 1) % PROMPTS.length);
+          setPromptIndex((i) => (i + 1) % prompts.length);
         }
 
         return prev - 1;
@@ -53,7 +47,7 @@ export default function MeditationTimer({
     }, 1000);
 
     return () => clearInterval(interval);
-  }, [running, totalSeconds, onComplete]);
+  }, [running, totalSeconds, onComplete, prompts.length]);
 
   function handleStart() {
     setRemaining(totalSeconds);
@@ -81,14 +75,18 @@ export default function MeditationTimer({
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative flex h-64 w-64 items-center justify-center rounded-full bg-cyan-500/10">
+      <div aria-live="polite" className="sr-only">
+        {running ? prompts[promptIndex] : ""}
+      </div>
+
+      <div className="relative flex h-64 w-64 items-center justify-center rounded-full bg-violet-500/10">
         <div
-          className={`absolute h-48 w-48 rounded-full bg-cyan-500/20 ${
+          className={`absolute h-48 w-48 rounded-full bg-violet-500/20 ${
             running ? "animate-pulse" : ""
           }`}
         />
         <div className="z-10 text-center">
-          <p className="text-4xl font-semibold text-cyan-800">
+          <p className="text-4xl font-semibold text-violet-800">
             {String(minutes).padStart(2, "0")}:
             {String(seconds).padStart(2, "0")}
           </p>
@@ -97,7 +95,7 @@ export default function MeditationTimer({
 
       {running && (
         <p className="mt-6 max-w-xs text-center text-sm text-slate-600">
-          {PROMPTS[promptIndex]}
+          {prompts[promptIndex]}
         </p>
       )}
 
@@ -106,8 +104,9 @@ export default function MeditationTimer({
           <button
             type="button"
             onClick={handleStart}
-            className="rounded-xl bg-cyan-600 px-6 py-3 font-medium text-white transition hover:bg-cyan-700"
+            className="flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 font-medium text-white transition hover:bg-violet-700"
           >
+            <Play className="h-4 w-4" fill="currentColor" />
             Begin
           </button>
         ) : running ? (
@@ -115,15 +114,17 @@ export default function MeditationTimer({
             <button
               type="button"
               onClick={handlePause}
-              className="rounded-xl bg-slate-200 px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-300"
+              className="flex items-center gap-2 rounded-xl bg-slate-200 px-6 py-3 font-medium text-slate-700 transition hover:bg-slate-300"
             >
+              <Pause className="h-4 w-4" fill="currentColor" />
               Pause
             </button>
             <button
               type="button"
               onClick={handleStop}
-              className="rounded-xl bg-slate-100 px-6 py-3 font-medium text-slate-500 transition hover:bg-slate-200"
+              className="flex items-center gap-2 rounded-xl bg-slate-100 px-6 py-3 font-medium text-slate-500 transition hover:bg-slate-200"
             >
+              <Square className="h-3.5 w-3.5" fill="currentColor" />
               Stop
             </button>
           </>
@@ -132,15 +133,17 @@ export default function MeditationTimer({
             <button
               type="button"
               onClick={handleResume}
-              className="rounded-xl bg-cyan-600 px-6 py-3 font-medium text-white transition hover:bg-cyan-700"
+              className="flex items-center gap-2 rounded-xl bg-violet-600 px-6 py-3 font-medium text-white transition hover:bg-violet-700"
             >
+              <Play className="h-4 w-4" fill="currentColor" />
               Resume
             </button>
             <button
               type="button"
               onClick={handleStop}
-              className="rounded-xl bg-slate-100 px-6 py-3 font-medium text-slate-500 transition hover:bg-slate-200"
+              className="flex items-center gap-2 rounded-xl bg-slate-100 px-6 py-3 font-medium text-slate-500 transition hover:bg-slate-200"
             >
+              <Square className="h-3.5 w-3.5" fill="currentColor" />
               Stop
             </button>
           </>
