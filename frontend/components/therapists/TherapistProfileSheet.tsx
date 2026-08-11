@@ -1,7 +1,7 @@
 "use client";
 
-import { useState } from "react";
-import { motion, useReducedMotion, type PanInfo } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, useReducedMotion } from "framer-motion";
 import { ArrowLeft, BadgeCheck, Bookmark, Share2 } from "lucide-react";
 
 import type { Therapist } from "@/hooks/useTherapists";
@@ -14,8 +14,6 @@ interface TherapistProfileSheetProps {
   onClose: () => void;
   onRequestAppointment: () => void;
 }
-
-const DISMISS_THRESHOLD_PX = 120;
 
 const SESSION_TYPE_LABELS: Record<string, string> = {
   online: "Online",
@@ -35,18 +33,23 @@ export default function TherapistProfileSheet({
   const [shareState, setShareState] = useState<"idle" | "copied">("idle");
   const [imageFailed, setImageFailed] = useState(false);
 
+  // Pops centered on every breakpoint -- Escape closes it, matching
+  // standard modal expectations now that it's no longer a bottom
+  // sheet with its own drag-to-dismiss gesture.
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [onClose]);
+
   const initials = therapist.name
     .split(" ")
     .map((p) => p[0])
     .join("")
     .slice(0, 2)
     .toUpperCase();
-
-  function handleDragEnd(_: unknown, info: PanInfo) {
-    if (info.offset.y > DISMISS_THRESHOLD_PX || info.velocity.y > 500) {
-      onClose();
-    }
-  }
 
   async function handleShare() {
     const url =
@@ -70,31 +73,28 @@ export default function TherapistProfileSheet({
   }
 
   return (
-    <div className="fixed inset-0 z-40" role="dialog" aria-modal="true" aria-labelledby="profile-sheet-title">
+    <div
+      className="fixed inset-0 z-40 flex items-center justify-center p-4"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="profile-sheet-title"
+    >
       <div className="absolute inset-0 bg-slate-900/40" onClick={onClose} />
 
       <motion.div
-        drag="y"
-        dragConstraints={{ top: 0, bottom: 0 }}
-        dragElastic={{ top: 0, bottom: 0.5 }}
-        onDragEnd={handleDragEnd}
-        initial={{ y: "100%" }}
-        animate={{ y: 0 }}
-        exit={{ y: "100%" }}
+        initial={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.92 }}
+        animate={{ opacity: 1, scale: 1 }}
+        exit={prefersReducedMotion ? { opacity: 0 } : { opacity: 0, scale: 0.92 }}
         transition={
-          prefersReducedMotion ? { duration: 0.15 } : { type: "spring", damping: 32, stiffness: 320 }
+          prefersReducedMotion ? { duration: 0.12 } : { type: "spring", damping: 24, stiffness: 340 }
         }
-        className="absolute bottom-0 left-0 right-0 top-6 flex flex-col overflow-hidden rounded-t-3xl bg-white shadow-2xl sm:left-1/2 sm:top-1/2 sm:bottom-auto sm:h-[85vh] sm:w-full sm:max-w-lg sm:-translate-x-1/2 sm:-translate-y-1/2 sm:rounded-3xl"
+        className="relative flex max-h-[85vh] w-full max-w-lg flex-col overflow-hidden rounded-3xl bg-white shadow-2xl"
       >
-        <div className="flex justify-center pt-3 sm:hidden">
-          <div className="h-1.5 w-10 rounded-full bg-slate-200" />
-        </div>
-
-        <div className="flex items-center justify-between px-5 pt-2">
+        <div className="flex items-center justify-between px-5 pt-4">
           <button
             type="button"
             onClick={onClose}
-            aria-label="Back"
+            aria-label="Close"
             className="flex h-9 w-9 items-center justify-center rounded-full text-slate-500 hover:bg-slate-100"
           >
             <ArrowLeft className="h-4 w-4" />
@@ -221,7 +221,7 @@ export default function TherapistProfileSheet({
           </div>
         </div>
 
-        <div className="flex gap-2 border-t border-slate-100 px-6 py-4">
+        <div className="flex shrink-0 gap-2 border-t border-slate-100 px-6 py-4">
           <button
             type="button"
             onClick={onToggleSaved}
