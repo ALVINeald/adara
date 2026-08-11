@@ -55,7 +55,7 @@ export default function TherapistFilters({
   }
 
   return (
-    <div className="mb-4">
+    <div className="mb-3 shrink-0">
       <div className="flex items-center gap-2 rounded-2xl border border-[#E9E8FF] bg-white px-4 py-3">
         <Search className="h-4 w-4 shrink-0 text-slate-400" />
         <input
@@ -70,9 +70,9 @@ export default function TherapistFilters({
         </kbd>
       </div>
 
-      <div className="mt-3 flex flex-wrap items-center gap-2">
+      <div className="mt-3 flex items-center gap-2 overflow-x-auto pb-1">
         {specialties.length > 0 && (
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setSpecialtyOpen((o) => !o)}
@@ -111,7 +111,7 @@ export default function TherapistFilters({
         )}
 
         {sessionTypes.length > 0 && (
-          <div className="relative">
+          <div className="relative shrink-0">
             <button
               type="button"
               onClick={() => setSessionTypeOpen((o) => !o)}
@@ -154,7 +154,7 @@ export default function TherapistFilters({
         <button
           type="button"
           onClick={() => update({ acceptingOnly: !filters.acceptingOnly })}
-          className={`flex min-h-[40px] items-center gap-1.5 rounded-xl border px-3 text-sm font-medium ${
+          className={`flex min-h-[40px] shrink-0 items-center gap-1.5 rounded-xl border px-3 text-sm font-medium ${
             filters.acceptingOnly
               ? "border-[#8B5CF6] bg-[#F5F3FF] text-[#6D28D9]"
               : "border-[#E9E8FF] bg-white text-slate-600"
@@ -167,7 +167,7 @@ export default function TherapistFilters({
           <button
             type="button"
             onClick={clearAll}
-            className="flex items-center gap-1 text-sm font-medium text-slate-400 hover:text-slate-600"
+            className="flex shrink-0 items-center gap-1 text-sm font-medium text-slate-400 hover:text-slate-600"
           >
             <X className="h-3.5 w-3.5" />
             Clear all
