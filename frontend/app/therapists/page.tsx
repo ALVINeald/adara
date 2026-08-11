@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { X } from "lucide-react";
+import { Info, X } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useTherapists, type Therapist } from "@/hooks/useTherapists";
@@ -10,8 +10,7 @@ import { useAppointmentRequests } from "@/hooks/useAppointmentRequests";
 import { useSavedTherapists } from "@/hooks/useSavedTherapists";
 import AppShell from "@/components/navigation/AppShell";
 
-import TherapistCard from "@/components/therapists/TherapistCard";
-import TherapistCardSkeleton from "@/components/therapists/TherapistCardSkeleton";
+import TherapistPager from "@/components/therapists/TherapistPager";
 import TherapistFilters, {
   type TherapistFilterState,
 } from "@/components/therapists/TherapistFilters";
@@ -24,7 +23,7 @@ import AppointmentSummaryCard from "@/components/therapists/AppointmentSummaryCa
 import SavedTherapistsCard from "@/components/therapists/SavedTherapistsCard";
 import TherapistProfileSheet from "@/components/therapists/TherapistProfileSheet";
 import AppointmentWizard from "@/components/therapists/AppointmentWizard";
-import TrustFooter from "@/components/therapists/TrustFooter";
+import TherapistAboutModal from "@/components/therapists/TherapistAboutModal";
 
 const EMPTY_FILTERS: TherapistFilterState = {
   search: "",
@@ -52,6 +51,7 @@ export default function TherapistsPage() {
   const [wizardTherapist, setWizardTherapist] = useState<Therapist | null>(null);
   const [crisisSheetOpen, setCrisisSheetOpen] = useState(false);
   const [resourcesModalOpen, setResourcesModalOpen] = useState(false);
+  const [aboutModalOpen, setAboutModalOpen] = useState(false);
 
   const requestedTherapistIds = useMemo(
     () => new Set(requests.map((r) => r.therapistId)),
@@ -87,86 +87,83 @@ export default function TherapistsPage() {
   }
 
   return (
-    <AppShell>
-      <main className="min-h-screen bg-[#FAFBFF] px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto max-w-[1400px] lg:grid lg:grid-cols-[1fr_320px] lg:gap-8">
-          <div className="min-w-0">
-            <h1 className="text-2xl font-bold text-slate-900 sm:text-3xl">
-              Therapist Directory
-            </h1>
-            <p className="mb-6 mt-1 text-sm text-slate-500">
-              Find qualified, compassionate professionals who can support your
-              journey.
-            </p>
-
-            <CrisisSupportBanner
-              onViewResources={() => setResourcesModalOpen(true)}
-            />
-
-            <TherapistFilters
-              therapists={therapists}
-              filters={filters}
-              onChange={setFilters}
-            />
-
-            <p className="mb-3 text-sm text-slate-500">
-              {therapistsLoading
-                ? "Loading therapists..."
-                : `${filteredTherapists.length} therapist${
-                    filteredTherapists.length === 1 ? "" : "s"
-                  } found`}
-            </p>
-
-            <div className="grid gap-4 sm:grid-cols-2 xl:grid-cols-3">
-              {therapistsLoading
-                ? Array.from({ length: 6 }).map((_, i) => (
-                    <TherapistCardSkeleton key={i} />
-                  ))
-                : filteredTherapists.map((therapist) => (
-                    <TherapistCard
-                      key={therapist.id}
-                      therapist={therapist}
-                      alreadyRequested={requestedTherapistIds.has(therapist.id)}
-                      isSaved={isSaved(therapist.id)}
-                      onToggleSaved={() => toggleSaved(therapist.id)}
-                      onViewProfile={() => setProfileTherapist(therapist)}
-                      onRequestAppointment={() => setWizardTherapist(therapist)}
-                    />
-                  ))}
-            </div>
-
-            {!therapistsLoading && filteredTherapists.length === 0 && (
-              <p className="py-12 text-center text-sm text-slate-400">
-                No therapists match your filters right now.
+    <AppShell noBottomPadding>
+      <div className="therapist-shell-height flex flex-col overflow-hidden bg-[#FAFBFF] lg:flex-row">
+        {/* Main column: everything here fits on one screen, no
+            vertical scroll -- the therapist grid paginates via swipe
+            instead of scrolling. */}
+        <div className="flex min-h-0 flex-1 flex-col px-4 pb-24 pt-4 sm:px-6 md:pb-6 lg:px-8 lg:py-6">
+          <div className="mb-2 flex shrink-0 items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="truncate text-xl font-bold text-slate-900 sm:text-2xl">
+                Therapist Directory
+              </h1>
+              <p className="truncate text-xs text-slate-500 sm:text-sm">
+                {therapistsLoading
+                  ? "Loading..."
+                  : `${filteredTherapists.length} therapist${
+                      filteredTherapists.length === 1 ? "" : "s"
+                    } found`}
               </p>
-            )}
-
-            <TrustFooter />
+            </div>
+            <button
+              type="button"
+              onClick={() => setAboutModalOpen(true)}
+              aria-label="About this directory"
+              className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-slate-400 hover:bg-white hover:text-slate-600"
+            >
+              <Info className="h-4 w-4" />
+            </button>
           </div>
 
-          {/* Desktop right sidebar */}
-          <div className="mt-8 hidden space-y-5 lg:mt-0 lg:block">
-            <CrisisQuickActionsPanel />
-            <AppointmentSummaryCard requests={requests} therapists={therapists} />
-            <SavedTherapistsCard
-              saved={saved}
-              therapists={therapists}
-              onSelectTherapist={setProfileTherapist}
-            />
-            <div className="rounded-3xl bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] p-5 text-white">
-              <p className="text-sm leading-6">
-                &ldquo;The first step to healing is reaching out. You&apos;ve
-                already taken it.&rdquo;
-              </p>
-            </div>
+          <CrisisSupportBanner
+            compact
+            onViewResources={() => setResourcesModalOpen(true)}
+          />
+
+          <TherapistFilters
+            therapists={therapists}
+            filters={filters}
+            onChange={setFilters}
+          />
+
+          <TherapistPager
+            therapists={filteredTherapists}
+            loading={therapistsLoading}
+            requestedTherapistIds={requestedTherapistIds}
+            isSaved={isSaved}
+            onToggleSaved={toggleSaved}
+            onViewProfile={setProfileTherapist}
+            onRequestAppointment={setWizardTherapist}
+          />
+        </div>
+
+        {/* Desktop right sidebar -- secondary utility content, scrolls
+            independently of the main paginated grid rather than
+            competing with it for the "one screen" constraint. */}
+        <div className="hidden w-80 shrink-0 space-y-5 overflow-y-auto border-l border-[#E9E8FF] bg-white p-5 lg:block">
+          <CrisisQuickActionsPanel />
+          <AppointmentSummaryCard requests={requests} therapists={therapists} />
+          <SavedTherapistsCard
+            saved={saved}
+            therapists={therapists}
+            onSelectTherapist={setProfileTherapist}
+          />
+          <div className="rounded-3xl bg-gradient-to-br from-[#8B5CF6] to-[#6D28D9] p-5 text-white">
+            <p className="text-sm leading-6">
+              &ldquo;The first step to healing is reaching out. You&apos;ve
+              already taken it.&rdquo;
+            </p>
           </div>
         </div>
-      </main>
+      </div>
 
-      {/* Mobile-only emergency FAB */}
       <EmergencyFAB onClick={() => setCrisisSheetOpen(true)} />
-
       <CrisisActionSheet open={crisisSheetOpen} onClose={() => setCrisisSheetOpen(false)} />
+
+      {aboutModalOpen && (
+        <TherapistAboutModal onClose={() => setAboutModalOpen(false)} />
+      )}
 
       {resourcesModalOpen && (
         <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center" role="dialog" aria-modal="true">
