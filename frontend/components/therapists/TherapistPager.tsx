@@ -130,10 +130,12 @@ export default function TherapistPager({
 
   if (loading) {
     return (
-      <div className={`grid ${gridColsClass} ${gridRowsClass} min-h-0 flex-1 gap-4`}>
-        {Array.from({ length: pageSize }).map((_, i) => (
-          <TherapistCardSkeleton key={i} />
-        ))}
+      <div className="flex min-h-0 flex-1 items-center">
+        <div className={`grid w-full ${gridColsClass} ${gridRowsClass} gap-4`}>
+          {Array.from({ length: pageSize }).map((_, i) => (
+            <TherapistCardSkeleton key={i} />
+          ))}
+        </div>
       </div>
     );
   }
@@ -176,10 +178,10 @@ export default function TherapistPager({
           {pages.map((pageItems, i) => (
             <div
               key={i}
-              className="h-full w-full shrink-0 px-1"
+              className="flex h-full w-full shrink-0 items-center px-1"
               aria-hidden={i !== pageIndex}
             >
-              <div className={`grid ${gridColsClass} ${gridRowsClass} h-full gap-4`}>
+              <div className={`grid w-full ${gridColsClass} ${gridRowsClass} gap-4`}>
                 {pageItems.map((therapist) => (
                   <TherapistCard
                     key={therapist.id}
