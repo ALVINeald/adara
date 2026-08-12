@@ -22,11 +22,28 @@ interface TherapistPagerProps {
 const SWIPE_OFFSET_THRESHOLD = 60;
 const SWIPE_VELOCITY_THRESHOLD = 400;
 
-const GRID_COLS: Record<number, string> = {
+// A real card's minimum content height: avatar/name/badge row (~64px)
+// + specialty chips row with its mt-3 (~44px) + 2-line bio with its
+// mt-3 (~72px) + button row with its pt-4 (~76px) + p-5 padding on
+// top and bottom (40px) + a safety margin for slightly longer content
+// wrapping. This is what actually failed last round -- a hardcoded
+// "always 2 rows" grid assumed cards would always fit half the
+// available height, which wasn't true. Measuring against this number
+// instead of assuming a fixed row count is what makes 2 rows safe to
+// use again.
+const MIN_CARD_HEIGHT = 300;
+const GRID_GAP = 16; // gap-4
+
+const COLS_CLASS: Record<number, string> = {
   1: "grid-cols-1",
   2: "grid-cols-2",
   3: "grid-cols-3",
   4: "grid-cols-4",
+};
+
+const ROWS_CLASS: Record<number, string> = {
+  1: "grid-rows-1",
+  2: "grid-rows-2",
 };
 
 export default function TherapistPager({
@@ -39,19 +56,12 @@ export default function TherapistPager({
   onRequestAppointment,
 }: TherapistPagerProps) {
   const prefersReducedMotion = useReducedMotion();
-  const pageSize = useResponsivePageSize();
+  const columns = useResponsivePageSize();
   const containerRef = useRef<HTMLDivElement>(null);
 
   const [pageIndex, setPageIndex] = useState(0);
   const [containerWidth, setContainerWidth] = useState(0);
-
-  const totalPages = Math.max(1, Math.ceil(therapists.length / pageSize));
-
-  useEffect(() => {
-    // Filters/search changing the result set shouldn't leave the pager
-    // stranded on a now-nonexistent page.
-    setPageIndex((current) => Math.min(current, totalPages - 1));
-  }, [totalPages]);
+  const [containerHeight, setContainerHeight] = useState(0);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -59,10 +69,25 @@ export default function TherapistPager({
 
     const observer = new ResizeObserver((entries) => {
       setContainerWidth(entries[0].contentRect.width);
+      setContainerHeight(entries[0].contentRect.height);
     });
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
+
+  // 2 rows only when there's measured room for 2 real cards -- not a
+  // fixed breakpoint guess. Never on the single-column mobile layout
+  // regardless of height, since one column stacked two-high reads as
+  // a plain scrolling list, not a grid worth splitting into pages.
+  const canFitTwoRows = containerHeight >= MIN_CARD_HEIGHT * 2 + GRID_GAP;
+  const rows = columns > 1 && canFitTwoRows ? 2 : 1;
+  const pageSize = columns * rows;
+
+  const totalPages = Math.max(1, Math.ceil(therapists.length / pageSize));
+
+  useEffect(() => {
+    setPageIndex((current) => Math.min(current, totalPages - 1));
+  }, [totalPages]);
 
   function goTo(index: number) {
     setPageIndex(Math.max(0, Math.min(totalPages - 1, index)));
@@ -91,11 +116,21 @@ export default function TherapistPager({
     therapists.slice(i * pageSize, i * pageSize + pageSize)
   );
 
-  const gridColsClass = GRID_COLS[pageSize] ?? "grid-cols-1";
+  const gridColsClass = COLS_CLASS[columns] ?? "grid-cols-1";
+  const gridRowsClass = ROWS_CLASS[rows] ?? "grid-rows-1";
+
+  // Real drag bounds -- the actual full track width, not a degenerate
+  // {0, 0}. {0, 0} doesn't just limit the drag gesture, it clamps the
+  // x motion value to zero at ALL times, including when the animate
+  // prop tries to move it -- which is why paging silently did nothing
+  // last round regardless of arrows, dots, or swipe. dragMomentum is
+  // off so Framer Motion's own release-inertia can't fight the
+  // controlled snap-to-page animation afterward.
+  const maxDragOffset = -(totalPages - 1) * containerWidth;
 
   if (loading) {
     return (
-      <div className={`grid ${gridColsClass} min-h-0 flex-1 gap-4`}>
+      <div className={`grid ${gridColsClass} ${gridRowsClass} min-h-0 flex-1 gap-4`}>
         {Array.from({ length: pageSize }).map((_, i) => (
           <TherapistCardSkeleton key={i} />
         ))}
@@ -126,8 +161,9 @@ export default function TherapistPager({
       >
         <motion.div
           drag={totalPages > 1 ? "x" : false}
-          dragConstraints={{ left: 0, right: 0 }}
+          dragConstraints={{ left: maxDragOffset, right: 0 }}
           dragElastic={0.15}
+          dragMomentum={false}
           onDragEnd={handleDragEnd}
           animate={{ x: -pageIndex * containerWidth }}
           transition={
@@ -143,7 +179,7 @@ export default function TherapistPager({
               className="h-full w-full shrink-0 px-1"
               aria-hidden={i !== pageIndex}
             >
-              <div className={`grid ${gridColsClass} h-full gap-4`}>
+              <div className={`grid ${gridColsClass} ${gridRowsClass} h-full gap-4`}>
                 {pageItems.map((therapist) => (
                   <TherapistCard
                     key={therapist.id}
