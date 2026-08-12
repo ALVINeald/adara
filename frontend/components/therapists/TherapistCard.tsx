@@ -51,7 +51,7 @@ export default function TherapistCard({
     <motion.div
       whileHover={prefersReducedMotion ? undefined : { y: -4 }}
       transition={{ duration: 0.15 }}
-      className="group flex h-full flex-col rounded-3xl border border-[#E9E8FF] bg-white p-5 shadow-sm transition-all duration-200 focus-within:ring-2 focus-within:ring-[#8B5CF6]/30 hover:shadow-[0_12px_32px_-8px_rgba(139,92,246,0.25)]"
+      className="group flex h-full flex-col overflow-hidden rounded-3xl border border-[#E9E8FF] bg-white p-5 shadow-sm transition-all duration-200 focus-within:ring-2 focus-within:ring-[#8B5CF6]/30 hover:shadow-[0_12px_32px_-8px_rgba(139,92,246,0.25)]"
     >
       <div className="flex items-start justify-between gap-2">
         <div className="flex min-w-0 items-center gap-3">

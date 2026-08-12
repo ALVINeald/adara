@@ -25,15 +25,8 @@ const SWIPE_VELOCITY_THRESHOLD = 400;
 const GRID_COLS: Record<number, string> = {
   1: "grid-cols-1",
   2: "grid-cols-2",
-  4: "grid-cols-2",
-  6: "grid-cols-3",
-};
-
-const GRID_ROWS: Record<number, string> = {
-  1: "grid-rows-1",
-  2: "grid-rows-1",
-  4: "grid-rows-2",
-  6: "grid-rows-2",
+  3: "grid-cols-3",
+  4: "grid-cols-4",
 };
 
 export default function TherapistPager({
@@ -99,11 +92,10 @@ export default function TherapistPager({
   );
 
   const gridColsClass = GRID_COLS[pageSize] ?? "grid-cols-1";
-  const gridRowsClass = GRID_ROWS[pageSize] ?? "grid-rows-1";
 
   if (loading) {
     return (
-      <div className={`grid ${gridColsClass} ${gridRowsClass} min-h-0 flex-1 gap-4`}>
+      <div className={`grid ${gridColsClass} min-h-0 flex-1 gap-4`}>
         {Array.from({ length: pageSize }).map((_, i) => (
           <TherapistCardSkeleton key={i} />
         ))}
@@ -151,7 +143,7 @@ export default function TherapistPager({
               className="h-full w-full shrink-0 px-1"
               aria-hidden={i !== pageIndex}
             >
-              <div className={`grid ${gridColsClass} ${gridRowsClass} h-full gap-4`}>
+              <div className={`grid ${gridColsClass} h-full gap-4`}>
                 {pageItems.map((therapist) => (
                   <TherapistCard
                     key={therapist.id}
