@@ -22,15 +22,6 @@ interface TherapistPagerProps {
 const SWIPE_OFFSET_THRESHOLD = 60;
 const SWIPE_VELOCITY_THRESHOLD = 400;
 
-// A real card's minimum content height: avatar/name/badge row (~64px)
-// + specialty chips row with its mt-3 (~44px) + 2-line bio with its
-// mt-3 (~72px) + button row with its pt-4 (~76px) + p-5 padding on
-// top and bottom (40px) + a safety margin for slightly longer content
-// wrapping. This is what actually failed last round -- a hardcoded
-// "always 2 rows" grid assumed cards would always fit half the
-// available height, which wasn't true. Measuring against this number
-// instead of assuming a fixed row count is what makes 2 rows safe to
-// use again.
 const MIN_CARD_HEIGHT = 300;
 const GRID_GAP = 16; // gap-4
 
@@ -75,10 +66,6 @@ export default function TherapistPager({
     return () => observer.disconnect();
   }, []);
 
-  // 2 rows only when there's measured room for 2 real cards -- not a
-  // fixed breakpoint guess. Never on the single-column mobile layout
-  // regardless of height, since one column stacked two-high reads as
-  // a plain scrolling list, not a grid worth splitting into pages.
   const canFitTwoRows = containerHeight >= MIN_CARD_HEIGHT * 2 + GRID_GAP;
   const rows = columns > 1 && canFitTwoRows ? 2 : 1;
   const pageSize = columns * rows;
@@ -119,13 +106,6 @@ export default function TherapistPager({
   const gridColsClass = COLS_CLASS[columns] ?? "grid-cols-1";
   const gridRowsClass = ROWS_CLASS[rows] ?? "grid-rows-1";
 
-  // Real drag bounds -- the actual full track width, not a degenerate
-  // {0, 0}. {0, 0} doesn't just limit the drag gesture, it clamps the
-  // x motion value to zero at ALL times, including when the animate
-  // prop tries to move it -- which is why paging silently did nothing
-  // last round regardless of arrows, dots, or swipe. dragMomentum is
-  // off so Framer Motion's own release-inertia can't fight the
-  // controlled snap-to-page animation afterward.
   const maxDragOffset = -(totalPages - 1) * containerWidth;
 
   if (loading) {
@@ -142,8 +122,8 @@ export default function TherapistPager({
 
   if (therapists.length === 0) {
     return (
-      <div className="flex min-h-0 flex-1 items-center justify-center">
-        <p className="text-sm text-slate-400">
+      <div className="flex min-h-0 flex-1 items-center justify-center rounded-3xl border border-purple-100/60 bg-white/60 p-12 text-center shadow-sm backdrop-blur-sm">
+        <p className="text-sm font-medium text-slate-400">
           No therapists match your filters right now.
         </p>
       </div>
@@ -205,7 +185,7 @@ export default function TherapistPager({
               onClick={() => goTo(pageIndex - 1)}
               disabled={pageIndex === 0}
               aria-label="Previous page"
-              className="absolute left-1 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-500 shadow-md transition hover:bg-white disabled:pointer-events-none disabled:opacity-0 sm:flex"
+              className="absolute left-2 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-purple-100 bg-white/95 text-slate-600 shadow-md backdrop-blur-sm transition-all hover:bg-white hover:text-purple-600 hover:shadow-lg disabled:pointer-events-none disabled:opacity-0 sm:flex"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
@@ -214,7 +194,7 @@ export default function TherapistPager({
               onClick={() => goTo(pageIndex + 1)}
               disabled={pageIndex === totalPages - 1}
               aria-label="Next page"
-              className="absolute right-1 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full bg-white/90 text-slate-500 shadow-md transition hover:bg-white disabled:pointer-events-none disabled:opacity-0 sm:flex"
+              className="absolute right-2 top-1/2 hidden h-10 w-10 -translate-y-1/2 items-center justify-center rounded-full border border-purple-100 bg-white/95 text-slate-600 shadow-md backdrop-blur-sm transition-all hover:bg-white hover:text-purple-600 hover:shadow-lg disabled:pointer-events-none disabled:opacity-0 sm:flex"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -223,8 +203,8 @@ export default function TherapistPager({
       </div>
 
       {totalPages > 1 && (
-        <div className="flex shrink-0 items-center justify-center gap-3 pt-3">
-          <span aria-live="polite" className="text-xs font-medium text-slate-400">
+        <div className="flex shrink-0 items-center justify-center gap-3 pt-4">
+          <span aria-live="polite" className="text-xs font-semibold tracking-wide text-slate-400">
             Page {pageIndex + 1} of {totalPages}
           </span>
           {totalPages <= 8 && (
@@ -237,7 +217,7 @@ export default function TherapistPager({
                   aria-label={`Go to page ${i + 1}`}
                   aria-current={i === pageIndex}
                   className={`h-1.5 rounded-full transition-all ${
-                    i === pageIndex ? "w-5 bg-[#8B5CF6]" : "w-1.5 bg-slate-200"
+                    i === pageIndex ? "w-6 bg-[#8B5CF6]" : "w-1.5 bg-purple-200/70 hover:bg-purple-300"
                   }`}
                 />
               ))}
