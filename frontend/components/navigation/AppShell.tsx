@@ -78,7 +78,7 @@ export default function AppShell({
           (its width changes with collapsed state), bottom padding on
           mobile so content isn't hidden behind the fixed tab bar. */}
       <div
-        className={`${collapsed ? "lg:pl-20" : "lg:pl-64"} ${
+        className={`w-full ${collapsed ? "lg:pl-20" : "lg:pl-64"} ${
           transitionsEnabled ? "transition-[padding] duration-200" : ""
         } ${noBottomPadding ? "" : "pb-20 md:pb-0"}`}
       >
