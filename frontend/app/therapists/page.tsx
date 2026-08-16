@@ -2,7 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { Info, X } from "lucide-react";
+import { Info, Sparkles, X } from "lucide-react";
 
 import { useAuth } from "@/hooks/useAuth";
 import { useTherapists, type Therapist } from "@/hooks/useTherapists";
@@ -14,6 +14,8 @@ import TherapistPager from "@/components/therapists/TherapistPager";
 import TherapistFilters, {
   type TherapistFilterState,
 } from "@/components/therapists/TherapistFilters";
+import PopularConcerns from "@/components/therapists/PopularConcerns";
+import FindMyMatch from "@/components/therapists/FindMyMatch";
 import CrisisSupportBanner from "@/components/therapists/CrisisSupportBanner";
 import CrisisQuickActionsPanel from "@/components/therapists/CrisisQuickActionsPanel";
 import CrisisActionSheet from "@/components/therapists/CrisisActionSheet";
@@ -52,6 +54,7 @@ export default function TherapistsPage() {
   const [crisisSheetOpen, setCrisisSheetOpen] = useState(false);
   const [resourcesModalOpen, setResourcesModalOpen] = useState(false);
   const [aboutModalOpen, setAboutModalOpen] = useState(false);
+  const [findMyMatchOpen, setFindMyMatchOpen] = useState(false);
 
   const requestedTherapistIds = useMemo(
     () => new Set(requests.map((r) => r.therapistId)),
@@ -121,10 +124,29 @@ export default function TherapistsPage() {
             onViewResources={() => setResourcesModalOpen(true)}
           />
 
+          <button
+            type="button"
+            onClick={() => setFindMyMatchOpen(true)}
+            className="mb-3 flex min-h-[44px] w-full shrink-0 items-center gap-2 rounded-2xl border border-[#E9E8FF] bg-[#F5F3FF] px-4 py-2.5 text-left transition hover:bg-[#EDE9FE]"
+          >
+            <div className="flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white">
+              <Sparkles className="h-4 w-4 text-[#8B5CF6]" />
+            </div>
+            <span className="min-w-0 flex-1 truncate text-sm font-medium text-[#6D28D9]">
+              Not sure where to start? Find My Match
+            </span>
+          </button>
+
           <TherapistFilters
             therapists={therapists}
             filters={filters}
             onChange={setFilters}
+          />
+
+          <PopularConcerns
+            therapists={therapists}
+            activeSpecialty={filters.specialty}
+            onSelect={(specialty) => setFilters((f) => ({ ...f, specialty }))}
           />
 
           <TherapistPager
@@ -188,6 +210,25 @@ export default function TherapistsPage() {
             </div>
           </div>
         </div>
+      )}
+
+      {findMyMatchOpen && (
+        <FindMyMatch
+          therapists={therapists}
+          loading={therapistsLoading}
+          requestedTherapistIds={requestedTherapistIds}
+          isSaved={isSaved}
+          onToggleSaved={toggleSaved}
+          onViewProfile={(t) => {
+            setFindMyMatchOpen(false);
+            setProfileTherapist(t);
+          }}
+          onRequestAppointment={(t) => {
+            setFindMyMatchOpen(false);
+            setWizardTherapist(t);
+          }}
+          onClose={() => setFindMyMatchOpen(false)}
+        />
       )}
 
       {profileTherapist && (
