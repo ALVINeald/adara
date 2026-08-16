@@ -1,29 +1,34 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import {
   ChevronDown,
+  LogOut,
   PanelLeftClose,
   PanelLeftOpen,
   Plus,
   Search,
+  Settings,
   Sparkles,
 } from "lucide-react";
 
 import { NAV_ITEMS } from "./navItems";
 import { useOptionalChatSidebar } from "@/lib/chatSidebarContext";
 import { useAuth } from "@/hooks/useAuth";
+import { signOut } from "@/lib/auth";
 import { getProfileNamesByIds } from "@/lib/profiles";
 
 interface DesktopSidebarProps {
   collapsed: boolean;
   onToggleCollapsed: () => void;
+  transitionsEnabled: boolean;
 }
 
 export default function DesktopSidebar({
   collapsed,
   onToggleCollapsed,
+  transitionsEnabled,
 }: DesktopSidebarProps) {
   const router = useRouter();
   const pathname = usePathname();
@@ -34,6 +39,35 @@ export default function DesktopSidebar({
   const { user } = useAuth();
   const [firstName, setFirstName] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!profileMenuOpen) return;
+
+    function handleClickOutside(e: MouseEvent) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target as Node)) {
+        setProfileMenuOpen(false);
+      }
+    }
+    function handleEscape(e: KeyboardEvent) {
+      if (e.key === "Escape") setProfileMenuOpen(false);
+    }
+
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("keydown", handleEscape);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("keydown", handleEscape);
+    };
+  }, [profileMenuOpen]);
+
+  async function handleSignOut() {
+    setSigningOut(true);
+    await signOut();
+    router.push("/auth/login");
+  }
 
   useEffect(() => {
     if (!user?.id) return;
@@ -88,9 +122,9 @@ export default function DesktopSidebar({
 
   return (
     <nav
-      className={`fixed left-0 top-0 z-40 hidden h-screen flex-col border-r border-slate-800 bg-slate-900 transition-[width] duration-200 lg:flex ${
-        collapsed ? "w-20" : "w-64"
-      }`}
+      className={`fixed left-0 top-0 z-40 hidden h-screen flex-col border-r border-slate-800 bg-slate-900 lg:flex ${
+        transitionsEnabled ? "transition-[width] duration-200" : ""
+      } ${collapsed ? "w-20" : "w-64"}`}
     >
 
       {/* Header */}
@@ -288,13 +322,57 @@ export default function DesktopSidebar({
         </div>
       )}
 
-      {/* User profile card -- links to the profile info already
-          shown elsewhere in the app; there's no dedicated /settings
-          page yet, so this intentionally doesn't invent one. */}
+      {/* User profile card -- opens a real dropdown (name/email,
+          Settings, Sign out). Settings still routes to the honestly-
+          labeled "coming soon" /settings page, not a fabricated
+          destination -- that page discloses its own incomplete state
+          rather than this menu pretending it's finished. */}
 
-      <div className="border-t border-slate-800 p-3">
-        <div
-          className={`flex items-center gap-3 rounded-xl px-2 py-2 ${
+      <div ref={profileMenuRef} className="relative border-t border-slate-800 p-3">
+        {profileMenuOpen && (
+          <div
+            role="menu"
+            className="absolute bottom-full left-3 right-3 z-10 mb-2 overflow-hidden rounded-xl border border-slate-700 bg-slate-800 shadow-xl"
+          >
+            <div className="border-b border-slate-700 px-3 py-2.5">
+              <p className="truncate text-sm font-medium text-white">
+                {firstName || "..."}
+              </p>
+              {user?.email && (
+                <p className="truncate text-xs text-slate-400">{user.email}</p>
+              )}
+            </div>
+
+            <button
+              role="menuitem"
+              onClick={() => {
+                setProfileMenuOpen(false);
+                router.push("/settings");
+              }}
+              className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-200 transition hover:bg-white/5"
+            >
+              <Settings className="h-4 w-4 shrink-0 text-slate-400" />
+              Settings
+            </button>
+
+            <button
+              role="menuitem"
+              onClick={handleSignOut}
+              disabled={signingOut}
+              className="flex w-full items-center gap-2.5 px-3 py-2.5 text-left text-sm text-slate-200 transition hover:bg-white/5 disabled:opacity-50"
+            >
+              <LogOut className="h-4 w-4 shrink-0 text-slate-400" />
+              {signingOut ? "Signing out..." : "Sign out"}
+            </button>
+          </div>
+        )}
+
+        <button
+          onClick={() => setProfileMenuOpen((open) => !open)}
+          aria-expanded={profileMenuOpen}
+          aria-haspopup="menu"
+          title={collapsed ? firstName || "Profile" : undefined}
+          className={`flex w-full items-center gap-3 rounded-xl px-2 py-2 transition hover:bg-white/5 ${
             collapsed ? "justify-center" : ""
           }`}
         >
@@ -303,13 +381,20 @@ export default function DesktopSidebar({
           </div>
 
           {!collapsed && (
-            <div className="min-w-0 flex-1">
-              <p className="truncate text-sm font-medium text-white">
-                {firstName || "..."}
-              </p>
-            </div>
+            <>
+              <div className="min-w-0 flex-1 text-left">
+                <p className="truncate text-sm font-medium text-white">
+                  {firstName || "..."}
+                </p>
+              </div>
+              <ChevronDown
+                className={`h-4 w-4 shrink-0 text-slate-500 transition-transform ${
+                  profileMenuOpen ? "rotate-180" : ""
+                }`}
+              />
+            </>
           )}
-        </div>
+        </button>
       </div>
 
     </nav>
