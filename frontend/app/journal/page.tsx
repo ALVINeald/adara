@@ -75,7 +75,7 @@ export default function JournalPage() {
 
   return (
     <AppShell hideMobileTabs={isEditing} noBottomPadding>
-      <div className="journal-shell-height flex overflow-hidden bg-slate-50">
+      <div className="journal-shell-height flex w-full overflow-hidden bg-slate-50">
         {/* List panel: full-width on mobile when in list mode, fixed
             column alongside the canvas from lg upward regardless of
             mode -- this is the "desktop split-pane, mobile full-page
