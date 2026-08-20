@@ -11,6 +11,7 @@ import { useMoodEntries } from "@/hooks/useMoodEntries";
 import { getProfileNamesByIds } from "@/lib/profiles";
 
 import AppShell from "@/components/navigation/AppShell";
+import MobileBottomTabs from "@/components/navigation/MobileBottomTabs";
 import JournalHeader from "@/components/journal/JournalHeader";
 import JournalMoodCheckIn, {
   getTodayDate,
@@ -112,7 +113,7 @@ export default function JournalPage() {
   const isEditing = view.mode === "editing";
 
   return (
-    <AppShell hideMobileTabs={isEditing} noBottomPadding>
+    <AppShell hideMobileTabs noBottomPadding>
       <div className="journal-shell-height flex w-full overflow-hidden bg-slate-50">
         {isEditing ? (
           <main className="min-w-0 flex-1 bg-white">
@@ -126,7 +127,7 @@ export default function JournalPage() {
           </main>
         ) : (
           <main className="min-w-0 flex-1 overflow-y-auto bg-slate-50">
-            <div className="mx-auto w-full max-w-[1800px] px-4 pb-24 pt-5 sm:px-6 lg:px-8 xl:px-10">
+            <div className="mx-auto w-full max-w-[1800px] px-4 pb-[6.5rem] pt-5 sm:px-6 lg:px-8 xl:px-10">
               <JournalHeader
                 firstName={firstName}
                 search={search}
@@ -183,6 +184,8 @@ export default function JournalPage() {
           </main>
         )}
       </div>
+
+      {!isEditing && <MobileBottomTabs />}
 
       {!isEditing && <style>{insightsAnimation}</style>}
 
