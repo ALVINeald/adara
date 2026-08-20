@@ -57,20 +57,9 @@ export default function JournalEntryCard({
 
   const { month, day } = formatDayLabel(entry.createdAt);
 
-  const surfaceClass =
-    entry.moodLevel === 1
-      ? "bg-rose-50/70"
-      : entry.moodLevel === 2
-      ? "bg-amber-50/70"
-      : entry.moodLevel === 4
-      ? "bg-emerald-50/70"
-      : entry.moodLevel === 5
-      ? "bg-sky-50/70"
-      : "bg-violet-50/55";
-
   return (
     <article
-      className={`group relative min-h-[184px] overflow-hidden rounded-[18px] border border-white/80 ${surfaceClass} transition duration-200 ${
+      className={`group relative overflow-hidden rounded-2xl border bg-white transition duration-200 ${
         active
           ? "border-violet-300 ring-2 ring-violet-100"
           : "border-slate-100 hover:-translate-y-0.5 hover:border-violet-100 hover:shadow-lg hover:shadow-slate-200/50"
@@ -86,15 +75,15 @@ export default function JournalEntryCard({
       <button
         type="button"
         onClick={onOpen}
-        className="block w-full p-[17px] text-left"
+        className="block w-full p-5 text-left"
       >
-        <div className="mb-3 flex items-start justify-between gap-3">
+        <div className="mb-4 flex items-start justify-between gap-3">
           <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 shrink-0 flex-col items-center justify-center rounded-lg bg-white/75 text-center ring-1 ring-slate-200/50">
-              <span className="text-[7px] font-bold tracking-widest text-slate-400">
+            <div className="flex h-11 w-11 shrink-0 flex-col items-center justify-center rounded-xl bg-slate-50 text-center">
+              <span className="text-[9px] font-bold tracking-widest text-slate-400">
                 {month}
               </span>
-              <span className="text-sm font-bold leading-none text-slate-700">
+              <span className="text-lg font-bold leading-none text-slate-800">
                 {day}
               </span>
             </div>
@@ -128,7 +117,7 @@ export default function JournalEntryCard({
           </p>
         )}
 
-        <div className="mt-3 flex flex-wrap items-center gap-2">
+        <div className="mt-4 flex flex-wrap items-center gap-2">
           <span className="text-xs text-slate-400">
             {entry.wordCount}{" "}
             {entry.wordCount === 1 ? "word" : "words"}
