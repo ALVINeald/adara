@@ -66,3 +66,28 @@ export function getMoodRingColorClass(level?: number): string {
 export function getMoodBadgeClass(): string {
   return "bg-violet-50 text-violet-700";
 }
+
+// Left-border accent for entry cards -- gives each card a little
+// visual personality tied to its real mood intensity, without
+// inventing a fake "category color" system the data model doesn't
+// have. Same violet-intensity scale and non-alarm-color reasoning as
+// getMoodColorClass/getMoodRingColorClass above, just shaped as a
+// left-side-only class since those two return full border shorthands
+// (including a dashed style for "no mood") that don't decompose
+// cleanly into a per-side accent.
+export function getMoodAccentBorderClass(level?: number): string {
+  switch (level) {
+    case 1:
+      return "border-l-violet-200";
+    case 2:
+      return "border-l-violet-300";
+    case 3:
+      return "border-l-violet-400";
+    case 4:
+      return "border-l-violet-500";
+    case 5:
+      return "border-l-violet-600";
+    default:
+      return "border-l-slate-200";
+  }
+}
