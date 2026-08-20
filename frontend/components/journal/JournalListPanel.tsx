@@ -1,14 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import {
-  ChevronDown,
-  ChevronLeft,
-  ChevronRight,
-  Filter,
-  Plus,
-  Search,
-} from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Filter } from "lucide-react";
 
 import { MOOD_SCALE } from "@/components/mood/moodScale";
 import JournalEntryCard from "./JournalEntryCard";
@@ -19,8 +12,10 @@ interface JournalListPanelProps {
   entries: JournalEntry[];
   selectedEntryId: string | null;
   loading: boolean;
+  search: string;
+  tagFilter: string | null;
+  onTagFilterChange: (tag: string | null) => void;
   onSelectEntry: (entry: JournalEntry) => void;
-  onNewEntry: () => void;
   onDeleteEntry: (id: string) => void;
   onToggleFavorite: (id: string) => void;
 }
@@ -33,14 +28,14 @@ export default function JournalListPanel({
   entries,
   selectedEntryId,
   loading,
+  search,
+  tagFilter,
+  onTagFilterChange,
   onSelectEntry,
-  onNewEntry,
   onDeleteEntry,
   onToggleFavorite,
 }: JournalListPanelProps) {
-  const [search, setSearch] = useState("");
   const [moodFilter, setMoodFilter] = useState<number | null>(null);
-  const [tagFilter, setTagFilter] = useState<string | null>(null);
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
   const [sortMode, setSortMode] = useState<SortMode>("newest");
@@ -95,9 +90,8 @@ export default function JournalListPanel({
   }
 
   function clearFilters() {
-    setSearch("");
     setMoodFilter(null);
-    setTagFilter(null);
+    onTagFilterChange(null);
     setDateFrom("");
     setDateTo("");
     setPage(1);
@@ -105,38 +99,8 @@ export default function JournalListPanel({
 
   return (
     <div className="flex h-full flex-col">
-      <div className="px-5 pb-4 pt-6">
-        <h1 className="text-2xl font-bold text-slate-900">Journal</h1>
-        <p className="mt-0.5 text-sm text-slate-500">
-          Capture your thoughts. Reflect. Grow.
-        </p>
-      </div>
-
-      <div className="px-5 pb-3">
-        <div className="flex items-center gap-2 rounded-xl border border-slate-200 bg-white px-3 py-2.5">
-          <Search className="h-4 w-4 shrink-0 text-slate-400" />
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => updateFilter(() => setSearch(e.target.value))}
-            placeholder="Search entries..."
-            className="w-full bg-transparent text-sm text-slate-700 outline-none placeholder:text-slate-400"
-          />
-          <kbd className="hidden shrink-0 rounded border border-slate-200 px-1.5 py-0.5 text-[10px] font-medium text-slate-400 sm:block">
-            ⌘K
-          </kbd>
-        </div>
-
-        <button
-          type="button"
-          onClick={onNewEntry}
-          className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl bg-violet-600 py-2.5 text-sm font-medium text-white transition hover:bg-violet-700"
-        >
-          <Plus className="h-4 w-4" />
-          New Entry
-        </button>
-
-        <div className="relative mt-3 flex items-center gap-2">
+      <div className="px-5 pt-3">
+        <div className="relative flex items-center gap-2">
           <div className="flex-1">
             <button
               type="button"
@@ -202,7 +166,7 @@ export default function JournalListPanel({
                             type="button"
                             onClick={() =>
                               updateFilter(() =>
-                                setTagFilter(tagFilter === tag ? null : tag)
+                                onTagFilterChange(tagFilter === tag ? null : tag)
                               )
                             }
                             className={`rounded-full px-2.5 py-1 text-xs font-medium transition ${
@@ -292,7 +256,7 @@ export default function JournalListPanel({
         </div>
       </div>
 
-      <div className="flex-1 overflow-y-auto px-5 pb-24 md:pb-3">
+      <div className="thin-scroll flex-1 overflow-y-auto px-5 pb-24 md:pb-3">
         {loading ? (
           <div className="space-y-3">
             {[0, 1, 2].map((i) => (
@@ -304,7 +268,7 @@ export default function JournalListPanel({
           </div>
         ) : filteredEntries.length === 0 ? (
           entries.length === 0 ? (
-            <JournalEmptyState variant="no-entries" onNewEntry={onNewEntry} />
+            <JournalEmptyState variant="no-entries" />
           ) : (
             <JournalEmptyState variant="no-results" onClearFilters={clearFilters} />
           )
