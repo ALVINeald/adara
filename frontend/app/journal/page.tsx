@@ -25,12 +25,21 @@ type View =
   | { mode: "browse" }
   | { mode: "editing"; entry: JournalEntry | null };
 
+const insightsAnimation = `
+          @keyframes insightsIn {
+            from { opacity: 0; transform: translateY(10px) scale(.985); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+          }
+        `;
+
 export default function JournalPage() {
   const router = useRouter();
   const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    if (!authLoading && !user) router.replace("/auth/login");
+    if (!authLoading && !user) {
+      router.replace("/auth/login");
+    }
   }, [authLoading, user, router]);
 
   const {
@@ -55,7 +64,9 @@ export default function JournalPage() {
 
     getProfileNamesByIds([user.id]).then(({ data }) => {
       const fullName = data?.[0]?.full_name;
-      if (fullName) setFirstName(fullName.split(" ")[0]);
+      if (fullName) {
+        setFirstName(fullName.split(" ")[0]);
+      }
     });
   }, [user?.id]);
 
@@ -63,6 +74,7 @@ export default function JournalPage() {
     if (view.mode !== "editing" || !view.entry) return;
 
     const latest = entries.find((entry) => entry.id === view.entry?.id);
+
     if (latest && latest !== view.entry) {
       setView({ mode: "editing", entry: latest });
     }
@@ -77,6 +89,7 @@ export default function JournalPage() {
     const confirmed = window.confirm(
       "Delete this entry? You can recover it for 30 days from the trash."
     );
+
     if (!confirmed) return;
 
     await removeEntry(id);
@@ -89,7 +102,7 @@ export default function JournalPage() {
   if (authLoading) {
     return (
       <AppShell>
-        <main className="flex min-h-screen items-center justify-center bg-[#f8f7fc]">
+        <main className="flex min-h-screen items-center justify-center bg-slate-50">
           <p className="text-slate-500">Loading...</p>
         </main>
       </AppShell>
@@ -100,7 +113,7 @@ export default function JournalPage() {
 
   return (
     <AppShell hideMobileTabs={isEditing} noBottomPadding>
-      <div className="journal-shell-height flex w-full overflow-hidden bg-[#f8f7fc]">
+      <div className="journal-shell-height flex w-full overflow-hidden bg-slate-50">
         {isEditing ? (
           <main className="min-w-0 flex-1 bg-white">
             <JournalCanvas
@@ -112,8 +125,8 @@ export default function JournalPage() {
             />
           </main>
         ) : (
-          <main className="min-w-0 flex-1 overflow-y-auto">
-            <div className="mx-auto w-full max-w-[1500px] px-4 pb-20 pt-4 sm:px-6 lg:px-7 xl:px-8">
+          <main className="min-w-0 flex-1 overflow-y-auto bg-slate-50">
+            <div className="mx-auto w-full max-w-[1800px] px-4 pb-24 pt-5 sm:px-6 lg:px-8 xl:px-10">
               <JournalHeader
                 firstName={firstName}
                 search={search}
@@ -145,108 +158,101 @@ export default function JournalPage() {
                 />
               </div>
 
-              {/* This is the important structural change:
-                  cards occupy the main column while insights occupy a
-                  dedicated rail, so there is no empty white canvas. */}
-              <div className="mt-4 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_220px] 2xl:grid-cols-[minmax(0,1fr)_245px]">
-                <section className="min-w-0">
-                  <JournalListPanel
-                    entries={entries}
-                    selectedEntryId={null}
-                    loading={entriesLoading}
-                    search={search}
-                    tagFilter={tagFilter}
-                    onTagFilterChange={setTagFilter}
-                    onSelectEntry={(entry) =>
-                      setView({ mode: "editing", entry })
+              <div className="mt-3">
+                <JournalListPanel
+                  entries={entries}
+                  selectedEntryId={null}
+                  loading={entriesLoading}
+                  search={search}
+                  tagFilter={tagFilter}
+                  onTagFilterChange={setTagFilter}
+                  onSelectEntry={(entry) =>
+                    setView({ mode: "editing", entry })
+                  }
+                  onDeleteEntry={handleDelete}
+                  onToggleFavorite={(id) => {
+                    const target = entries.find((entry) => entry.id === id);
+
+                    if (target) {
+                      toggleFavorite(id, !target.isFavorited);
                     }
-                    onDeleteEntry={handleDelete}
-                    onToggleFavorite={(id) => {
-                      const target = entries.find(
-                        (entry) => entry.id === id
-                      );
-                      if (target) {
-                        toggleFavorite(id, !target.isFavorited);
-                      }
-                    }}
-                  />
-                </section>
-
-                <aside className="hidden min-w-0 xl:block">
-                  <div className="sticky top-4 overflow-hidden rounded-2xl border border-slate-200/80 bg-white/75 shadow-sm">
-                    <div className="border-b border-slate-100 px-4 py-3">
-                      <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
-                        <TrendingUp className="h-4 w-4 text-violet-500" />
-                        Your insights
-                      </div>
-                      <p className="mt-1 text-[10px] text-slate-400">
-                        Patterns from your reflections
-                      </p>
-                    </div>
-
-                    <div className="max-h-[calc(100vh-190px)] overflow-y-auto">
-                      <JournalInsights
-                        entries={entries}
-                        onOpenMemory={(entry) =>
-                          setView({ mode: "editing", entry })
-                        }
-                      />
-                    </div>
-                  </div>
-                </aside>
+                  }}
+                />
               </div>
             </div>
           </main>
         )}
       </div>
 
+      {!isEditing && <style>{insightsAnimation}</style>}
+
       {!isEditing && (
         <button
           type="button"
           onClick={() => setInsightsOpen(true)}
-          className="fixed right-5 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg shadow-violet-600/30 transition hover:scale-105 hover:bg-violet-700 xl:hidden"
-          style={{
-            bottom: "max(6rem, calc(env(safe-area-inset-bottom) + 5rem))",
-          }}
-          aria-label="View insights"
+          className="group fixed bottom-6 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full border border-white/70 bg-white/75 text-violet-600 shadow-[0_14px_40px_rgba(91,45,180,0.24)] backdrop-blur-xl transition-all duration-300 hover:-translate-y-1 hover:scale-105 hover:bg-white/90 focus:outline-none focus:ring-4 focus:ring-violet-200/70"
+          aria-label="Open your insights"
+          title="Your insights"
         >
-          <TrendingUp className="h-5 w-5" />
+          <span className="absolute inset-0 rounded-full bg-violet-400/10 opacity-0 blur-md transition group-hover:opacity-100" />
+          <TrendingUp className="relative h-5 w-5" />
+          <span className="absolute -right-1 -top-1 h-3 w-3 rounded-full border-2 border-white bg-violet-500" />
         </button>
       )}
 
       {insightsOpen && (
-        <div className="fixed inset-0 z-40 xl:hidden">
+        <div className="fixed inset-0 z-40">
           <div
-            className="absolute inset-0 bg-slate-950/20 backdrop-blur-[1px]"
+            className="absolute inset-0 bg-slate-950/30 backdrop-blur-xl transition-opacity duration-300"
             onClick={() => setInsightsOpen(false)}
+            aria-hidden="true"
           />
 
-          <aside className="absolute right-0 top-0 flex h-full w-full max-w-sm flex-col bg-white shadow-2xl">
-            <div className="flex items-center justify-between border-b border-slate-100 px-5 py-4">
-              <span className="flex items-center gap-1.5 font-semibold text-slate-900">
-                <TrendingUp className="h-4 w-4 text-violet-500" />
-                Your Insights
-              </span>
-              <button
-                type="button"
-                onClick={() => setInsightsOpen(false)}
-                className="rounded-lg p-1.5 text-slate-400 transition hover:bg-slate-100 hover:text-slate-700"
-                aria-label="Close insights"
-              >
-                <X className="h-4 w-4" />
-              </button>
-            </div>
+          <div className="relative flex min-h-full items-center justify-center p-5 sm:p-8">
+            <aside
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="journal-insights-title"
+              className="relative flex max-h-[min(82vh,760px)] w-full max-w-2xl flex-col overflow-hidden rounded-[28px] border border-white/70 bg-white/65 shadow-[0_30px_100px_rgba(31,20,70,0.28)] backdrop-blur-2xl backdrop-saturate-150 animate-[insightsIn_.28s_ease-out]"
+            >
+              <div className="pointer-events-none absolute -right-24 -top-24 h-64 w-64 rounded-full bg-violet-300/25 blur-3xl" />
+              <div className="pointer-events-none absolute -bottom-28 -left-24 h-64 w-64 rounded-full bg-fuchsia-200/20 blur-3xl" />
 
-            <div className="min-h-0 flex-1 overflow-y-auto">
-              <JournalInsights
-                entries={entries}
-                onOpenMemory={(entry) => {
-                  setInsightsOpen(false);
-                  setView({ mode: "editing", entry });
-                }}
-              />
-            </div>
-          </aside>
+              <div className="relative flex items-center justify-between border-b border-white/60 bg-white/30 px-5 py-4 sm:px-7">
+                <div>
+                  <span className="flex items-center gap-2 text-xs font-semibold uppercase tracking-[0.16em] text-violet-600">
+                    <TrendingUp className="h-4 w-4" />
+                    Journal intelligence
+                  </span>
+                  <h2 id="journal-insights-title" className="mt-1 text-lg font-semibold tracking-tight text-slate-900">
+                    Your Insights
+                  </h2>
+                  <p className="mt-0.5 text-xs text-slate-500">
+                    Gentle patterns from your reflections, not judgments.
+                  </p>
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => setInsightsOpen(false)}
+                  className="rounded-full border border-white/70 bg-white/70 p-2 text-slate-500 shadow-sm backdrop-blur transition hover:bg-white hover:text-slate-900"
+                  aria-label="Close insights"
+                >
+                  <X className="h-4 w-4" />
+                </button>
+              </div>
+
+              <div className="relative min-h-0 flex-1 overflow-y-auto px-4 py-4 sm:px-6 sm:py-5">
+                <JournalInsights
+                  entries={entries}
+                  onOpenMemory={(entry) => {
+                    setInsightsOpen(false);
+                    setView({ mode: "editing", entry });
+                  }}
+                />
+              </div>
+            </aside>
+          </div>
         </div>
       )}
     </AppShell>
