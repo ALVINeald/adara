@@ -2,7 +2,7 @@
 
 import { Star, Trash2 } from "lucide-react";
 
-import { getMoodBadgeClass, getMoodOption } from "@/components/mood/moodScale";
+import { getMoodAccentBorderClass, getMoodBadgeClass, getMoodOption } from "@/components/mood/moodScale";
 import type { JournalEntry } from "@/hooks/useJournalEntries";
 
 interface JournalEntryCardProps {
@@ -45,10 +45,12 @@ export default function JournalEntryCard({
 
   return (
     <div
-      className={`group relative flex gap-3 rounded-2xl border bg-white p-4 shadow-sm transition hover:shadow-md ${
+      className={`group relative flex gap-3 rounded-2xl border-y border-r border-l-4 bg-white p-4 shadow-sm transition hover:shadow-md ${getMoodAccentBorderClass(
+        entry.moodLevel ?? undefined
+      )} ${
         active
-          ? "border-violet-300 ring-1 ring-violet-300"
-          : "border-transparent"
+          ? "border-y-violet-300 border-r-violet-300 ring-1 ring-violet-300"
+          : "border-y-transparent border-r-transparent"
       }`}
     >
       {/* Date badge */}
