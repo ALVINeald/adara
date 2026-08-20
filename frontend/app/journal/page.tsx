@@ -30,9 +30,7 @@ export default function JournalPage() {
   const { user, loading: authLoading } = useAuth();
 
   useEffect(() => {
-    if (!authLoading && !user) {
-      router.replace("/auth/login");
-    }
+    if (!authLoading && !user) router.replace("/auth/login");
   }, [authLoading, user, router]);
 
   const {
@@ -57,9 +55,7 @@ export default function JournalPage() {
 
     getProfileNamesByIds([user.id]).then(({ data }) => {
       const fullName = data?.[0]?.full_name;
-      if (fullName) {
-        setFirstName(fullName.split(" ")[0]);
-      }
+      if (fullName) setFirstName(fullName.split(" ")[0]);
     });
   }, [user?.id]);
 
@@ -67,7 +63,6 @@ export default function JournalPage() {
     if (view.mode !== "editing" || !view.entry) return;
 
     const latest = entries.find((entry) => entry.id === view.entry?.id);
-
     if (latest && latest !== view.entry) {
       setView({ mode: "editing", entry: latest });
     }
@@ -82,7 +77,6 @@ export default function JournalPage() {
     const confirmed = window.confirm(
       "Delete this entry? You can recover it for 30 days from the trash."
     );
-
     if (!confirmed) return;
 
     await removeEntry(id);
@@ -95,7 +89,7 @@ export default function JournalPage() {
   if (authLoading) {
     return (
       <AppShell>
-        <main className="flex min-h-screen items-center justify-center bg-slate-50">
+        <main className="flex min-h-screen items-center justify-center bg-[#f8f7fc]">
           <p className="text-slate-500">Loading...</p>
         </main>
       </AppShell>
@@ -106,7 +100,7 @@ export default function JournalPage() {
 
   return (
     <AppShell hideMobileTabs={isEditing} noBottomPadding>
-      <div className="journal-shell-height flex w-full overflow-hidden bg-slate-50">
+      <div className="journal-shell-height flex w-full overflow-hidden bg-[#f8f7fc]">
         {isEditing ? (
           <main className="min-w-0 flex-1 bg-white">
             <JournalCanvas
@@ -118,8 +112,8 @@ export default function JournalPage() {
             />
           </main>
         ) : (
-          <main className="min-w-0 flex-1 overflow-y-auto bg-slate-50">
-            <div className="mx-auto w-full max-w-[1800px] px-4 pb-24 pt-5 sm:px-6 lg:px-8 xl:px-10">
+          <main className="min-w-0 flex-1 overflow-y-auto">
+            <div className="mx-auto w-full max-w-[1500px] px-4 pb-20 pt-4 sm:px-6 lg:px-7 xl:px-8">
               <JournalHeader
                 firstName={firstName}
                 search={search}
@@ -151,26 +145,55 @@ export default function JournalPage() {
                 />
               </div>
 
-              <div className="mt-3">
-                <JournalListPanel
-                  entries={entries}
-                  selectedEntryId={null}
-                  loading={entriesLoading}
-                  search={search}
-                  tagFilter={tagFilter}
-                  onTagFilterChange={setTagFilter}
-                  onSelectEntry={(entry) =>
-                    setView({ mode: "editing", entry })
-                  }
-                  onDeleteEntry={handleDelete}
-                  onToggleFavorite={(id) => {
-                    const target = entries.find((entry) => entry.id === id);
-
-                    if (target) {
-                      toggleFavorite(id, !target.isFavorited);
+              {/* This is the important structural change:
+                  cards occupy the main column while insights occupy a
+                  dedicated rail, so there is no empty white canvas. */}
+              <div className="mt-4 grid grid-cols-1 gap-5 xl:grid-cols-[minmax(0,1fr)_220px] 2xl:grid-cols-[minmax(0,1fr)_245px]">
+                <section className="min-w-0">
+                  <JournalListPanel
+                    entries={entries}
+                    selectedEntryId={null}
+                    loading={entriesLoading}
+                    search={search}
+                    tagFilter={tagFilter}
+                    onTagFilterChange={setTagFilter}
+                    onSelectEntry={(entry) =>
+                      setView({ mode: "editing", entry })
                     }
-                  }}
-                />
+                    onDeleteEntry={handleDelete}
+                    onToggleFavorite={(id) => {
+                      const target = entries.find(
+                        (entry) => entry.id === id
+                      );
+                      if (target) {
+                        toggleFavorite(id, !target.isFavorited);
+                      }
+                    }}
+                  />
+                </section>
+
+                <aside className="hidden min-w-0 xl:block">
+                  <div className="sticky top-4 overflow-hidden rounded-2xl border border-slate-200/80 bg-white/75 shadow-sm">
+                    <div className="border-b border-slate-100 px-4 py-3">
+                      <div className="flex items-center gap-2 text-sm font-semibold text-slate-900">
+                        <TrendingUp className="h-4 w-4 text-violet-500" />
+                        Your insights
+                      </div>
+                      <p className="mt-1 text-[10px] text-slate-400">
+                        Patterns from your reflections
+                      </p>
+                    </div>
+
+                    <div className="max-h-[calc(100vh-190px)] overflow-y-auto">
+                      <JournalInsights
+                        entries={entries}
+                        onOpenMemory={(entry) =>
+                          setView({ mode: "editing", entry })
+                        }
+                      />
+                    </div>
+                  </div>
+                </aside>
               </div>
             </div>
           </main>
@@ -181,7 +204,7 @@ export default function JournalPage() {
         <button
           type="button"
           onClick={() => setInsightsOpen(true)}
-          className="fixed bottom-24 right-5 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg shadow-violet-600/30 transition hover:scale-105 hover:bg-violet-700 2xl:hidden"
+          className="fixed right-5 z-30 flex h-12 w-12 items-center justify-center rounded-full bg-violet-600 text-white shadow-lg shadow-violet-600/30 transition hover:scale-105 hover:bg-violet-700 xl:hidden"
           style={{
             bottom: "max(6rem, calc(env(safe-area-inset-bottom) + 5rem))",
           }}
@@ -192,7 +215,7 @@ export default function JournalPage() {
       )}
 
       {insightsOpen && (
-        <div className="fixed inset-0 z-40">
+        <div className="fixed inset-0 z-40 xl:hidden">
           <div
             className="absolute inset-0 bg-slate-950/20 backdrop-blur-[1px]"
             onClick={() => setInsightsOpen(false)}
@@ -204,7 +227,6 @@ export default function JournalPage() {
                 <TrendingUp className="h-4 w-4 text-violet-500" />
                 Your Insights
               </span>
-
               <button
                 type="button"
                 onClick={() => setInsightsOpen(false)}
