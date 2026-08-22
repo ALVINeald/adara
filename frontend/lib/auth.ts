@@ -1,4 +1,8 @@
+"use client";
+
 import { supabase } from "./supabase";
+
+export { supabase };
 
 export async function signUp(
   name: string,
@@ -39,12 +43,21 @@ export async function getCurrentUser() {
   return user;
 }
 
-export async function resetPasswordForEmail(email: string) {
-  return await supabase.auth.resetPasswordForEmail(email, {
-    redirectTo: `${window.location.origin}/auth/reset-password`,
-  });
+export async function resetPasswordForEmail(
+  email: string
+) {
+  return await supabase.auth.resetPasswordForEmail(
+    email,
+    {
+      redirectTo: `${window.location.origin}/auth/reset-password`,
+    }
+  );
 }
 
-export async function updatePassword(newPassword: string) {
-  return await supabase.auth.updateUser({ password: newPassword });
+export async function updatePassword(
+  newPassword: string
+) {
+  return await supabase.auth.updateUser({
+    password: newPassword,
+  });
 }
