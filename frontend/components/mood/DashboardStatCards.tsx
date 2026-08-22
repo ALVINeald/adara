@@ -10,10 +10,17 @@ interface DashboardStatCardsProps {
   trend: MoodTrend;
 }
 
-function Sparkline({ points }: { points: (number | null)[] }) {
+function Sparkline({
+  points,
+}: {
+  points: (number | null)[];
+}) {
   const width = 200;
   const height = 56;
-  const validLevels = points.filter((p): p is number => p !== null);
+
+  const validLevels = points.filter(
+    (point): point is number => point !== null
+  );
 
   if (validLevels.length < 2) {
     return (
@@ -32,18 +39,39 @@ function Sparkline({ points }: { points: (number | null)[] }) {
   const coords = points
     .map((level, index) => {
       if (level === null) return null;
+
       const x = index * step;
-      const y = height - ((level - min) / range) * (height - 8) - 4;
+
+      const y =
+        height -
+        ((level - min) / range) * (height - 8) -
+        4;
+
       return { x, y };
     })
-    .filter((c): c is { x: number; y: number } => c !== null);
+    .filter(
+      (
+        point
+      ): point is {
+        x: number;
+        y: number;
+      } => point !== null
+    );
 
   const path = coords
-    .map((c, i) => `${i === 0 ? "M" : "L"} ${c.x} ${c.y}`)
+    .map(
+      (point, index) =>
+        `${index === 0 ? "M" : "L"} ${point.x} ${point.y}`
+    )
     .join(" ");
 
   return (
-    <svg viewBox={`0 0 ${width} ${height}`} className="h-14 w-full">
+    <svg
+      viewBox={`0 0 ${width} ${height}`}
+      className="h-14 w-full"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
       <path
         d={path}
         fill="none"
@@ -62,54 +90,76 @@ export default function DashboardStatCards({
 }: DashboardStatCardsProps) {
   const router = useRouter();
 
-  // Progress toward a 30-day streak milestone -- a real, if somewhat
-  // arbitrary, target rather than a decorative bar with no basis.
   const streakProgress = Math.min(streak / 30, 1) * 100;
 
   return (
-    <div className="mb-6 grid gap-4 md:grid-cols-3">
+    <section className="mb-5 grid w-full min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 md:mb-6 md:grid-cols-3">
+      {/* CURRENT STREAK */}
+      <div className="min-w-0 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6">
+        <p className="text-sm font-medium text-slate-500">
+          Current Streak
+        </p>
 
-      <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-        <p className="text-sm font-medium text-slate-500">Current Streak</p>
-        <div className="mt-2 flex items-end justify-between">
-          <p className="text-3xl font-extrabold tabular-nums tracking-tight text-slate-900">
-            {streak} <span className="text-lg font-medium text-slate-400">days</span>
+        <div className="mt-2 flex min-w-0 items-end justify-between gap-3">
+          <p className="min-w-0 text-2xl font-extrabold tabular-nums tracking-tight text-slate-900 sm:text-3xl">
+            {streak}{" "}
+            <span className="text-base font-medium text-slate-400">
+              days
+            </span>
           </p>
-          <div className="flex h-11 w-11 items-center justify-center rounded-full bg-orange-50">
-            <Flame className="h-5 w-5 text-orange-500" />
+
+          <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-orange-50">
+            <Flame
+              className="h-5 w-5 text-orange-500"
+              aria-hidden="true"
+            />
           </div>
         </div>
-        <p className="mb-3 mt-1 text-sm text-slate-400">
-          {streak > 0 ? "Amazing consistency!" : "Check in today to start one."}
+
+        <p className="mb-3 mt-1 text-xs leading-5 text-slate-400 sm:text-sm">
+          {streak > 0
+            ? "Amazing consistency!"
+            : "Check in today to start one."}
         </p>
+
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-100">
           <div
-            className="h-full rounded-full bg-violet-600 transition-all"
-            style={{ width: `${streakProgress}%` }}
+            className="h-full rounded-full bg-violet-600 transition-all duration-500"
+            style={{
+              width: `${streakProgress}%`,
+            }}
           />
         </div>
       </div>
 
-      <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-        <div className="flex items-center justify-between">
-          <p className="text-sm font-medium text-slate-500">Mood Trend</p>
+      {/* MOOD TREND */}
+      <div className="min-w-0 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6">
+        <div className="flex min-w-0 items-center justify-between gap-2">
+          <p className="truncate text-sm font-medium text-slate-500">
+            Mood Trend
+          </p>
+
           {trend.percentChange !== null && (
             <span
-              className={`rounded-full px-2 py-0.5 text-xs font-semibold ${
+              className={[
+                "shrink-0 rounded-full px-2 py-0.5",
+                "text-xs font-semibold",
                 trend.percentChange >= 0
                   ? "bg-emerald-50 text-emerald-600"
-                  : "bg-slate-100 text-slate-500"
-              }`}
+                  : "bg-slate-100 text-slate-500",
+              ].join(" ")}
             >
               {trend.percentChange >= 0 ? "+" : ""}
               {trend.percentChange}%
             </span>
           )}
         </div>
-        <div className="mt-2">
+
+        <div className="mt-2 min-w-0">
           <Sparkline points={trend.points} />
         </div>
-        <p className="mt-1 text-sm text-slate-400">
+
+        <p className="mt-1 text-xs leading-5 text-slate-400 sm:text-sm">
           {trend.percentChange === null
             ? "Keep checking in to see a trend."
             : trend.percentChange >= 0
@@ -118,33 +168,43 @@ export default function DashboardStatCards({
         </p>
       </div>
 
-      {/* Static -- no real "daily focus" feature/data source exists
-          yet, same reasoning as the Companion header's Focus chip.
-          The arrow does something real though: it opens Journal so
-          you can actually write about it, rather than going nowhere. */}
-      <div className="rounded-3xl border border-slate-100 bg-white p-6 shadow-sm transition-all duration-200 hover:-translate-y-0.5 hover:shadow-md">
-        <div className="flex items-start justify-between">
-          <div>
-            <p className="text-sm font-medium text-slate-500">Today&apos;s Focus</p>
-            <div className="mt-3 flex items-center gap-3">
-              <div className="flex h-11 w-11 items-center justify-center rounded-full bg-violet-50">
-                <Heart className="h-5 w-5 text-violet-500" />
+      {/* TODAY'S FOCUS */}
+      <div className="min-w-0 rounded-2xl border border-slate-100 bg-white p-4 shadow-sm sm:rounded-3xl sm:p-6">
+        <div className="flex min-w-0 items-start justify-between gap-3">
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-slate-500">
+              Today&apos;s Focus
+            </p>
+
+            <div className="mt-3 flex min-w-0 items-center gap-3">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-violet-50">
+                <Heart
+                  className="h-5 w-5 text-violet-500"
+                  aria-hidden="true"
+                />
               </div>
-              <p className="text-lg font-semibold text-slate-900">Self Compassion</p>
+
+              <p className="min-w-0 text-base font-semibold leading-5 text-slate-900 sm:text-lg">
+                Self Compassion
+              </p>
             </div>
-            <p className="mt-2 text-sm text-slate-400">Be kind to yourself today.</p>
+
+            <p className="mt-2 text-xs leading-5 text-slate-400 sm:text-sm">
+              Be kind to yourself today.
+            </p>
           </div>
 
           <button
+            type="button"
             onClick={() => router.push("/journal")}
             title="Reflect on this in your journal"
-            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-600"
+            aria-label="Reflect on this in your journal"
+            className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full border border-slate-200 text-slate-400 transition hover:border-violet-200 hover:bg-violet-50 hover:text-violet-600 active:scale-95 focus:outline-none focus:ring-2 focus:ring-violet-200"
           >
             <ArrowRight className="h-4 w-4" />
           </button>
         </div>
       </div>
-
-    </div>
+    </section>
   );
 }
