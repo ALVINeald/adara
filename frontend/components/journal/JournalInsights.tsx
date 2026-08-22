@@ -113,7 +113,7 @@ export default function JournalInsights({ entries, onOpenMemory }: JournalInsigh
           </p>
           {tagTrend.isMoreThanLastWeek && (
             <p className="mt-1 text-xs text-violet-600">
-              That&apos;s more than last week. Keep going 💜
+              That&apos;s more than last week. Keep going.
             </p>
           )}
         </div>

@@ -20,7 +20,7 @@ export default function JournalHeader({
         <div className="min-w-0">
           <h1 className="truncate text-xl font-bold text-slate-900 sm:text-2xl">
             {getTimeOfDayGreeting()}
-            {firstName ? `, ${firstName}` : ""} <span aria-hidden>💜</span>
+            {firstName ? `, ${firstName}` : ""} 
           </h1>
           <p className="text-sm text-slate-500">How are you feeling today?</p>
         </div>
