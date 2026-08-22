@@ -1,7 +1,12 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { BookOpen, Waves, Wind, Users } from "lucide-react";
+import {
+  BookOpen,
+  Waves,
+  Wind,
+  Users,
+} from "lucide-react";
 
 const SHORTCUTS = [
   {
@@ -46,38 +51,51 @@ export default function ContinueJourneyRow() {
   const router = useRouter();
 
   return (
-    <div className="mb-6">
-
-      <h2 className="mb-4 text-lg font-bold tracking-tight text-slate-900">
+    <section className="mb-5 w-full min-w-0 sm:mb-6">
+      <h2 className="mb-3 text-lg font-bold tracking-tight text-slate-900 sm:mb-4">
         Continue Your Journey
       </h2>
 
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-4">
+      <div className="grid w-full min-w-0 grid-cols-2 gap-3 sm:gap-4 md:grid-cols-4">
         {SHORTCUTS.map((item) => {
           const Icon = item.icon;
 
           return (
             <button
               key={item.key}
+              type="button"
               onClick={() => router.push(item.href)}
-              className="rounded-2xl border border-slate-100 bg-white p-5 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-violet-100 hover:shadow-md"
+              className={[
+                "min-w-0 overflow-hidden",
+                "rounded-2xl border border-slate-100 bg-white",
+                "p-4 text-left",
+                "transition-all duration-200",
+                "hover:-translate-y-0.5 hover:border-violet-100 hover:shadow-md",
+                "active:scale-[0.99]",
+                "focus:outline-none focus:ring-2 focus:ring-violet-200 focus:ring-offset-2",
+                "sm:p-5",
+              ].join(" ")}
             >
               <div
-                className={`flex h-10 w-10 items-center justify-center rounded-xl ${item.bg}`}
+                className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-xl ${item.bg}`}
               >
-                <Icon className={`h-5 w-5 ${item.fg}`} />
+                <Icon
+                  className={`h-5 w-5 ${item.fg}`}
+                  aria-hidden="true"
+                />
               </div>
 
-              <p className="mt-3 text-sm font-semibold text-slate-900">
+              <p className="mt-3 truncate text-sm font-semibold text-slate-900">
                 {item.label}
               </p>
 
-              <p className="text-xs text-slate-400">{item.sublabel}</p>
+              <p className="mt-0.5 line-clamp-2 text-xs leading-5 text-slate-400">
+                {item.sublabel}
+              </p>
             </button>
           );
         })}
       </div>
-
-    </div>
+    </section>
   );
 }
